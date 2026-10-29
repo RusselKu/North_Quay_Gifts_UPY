@@ -1,0 +1,112 @@
+{
+    "total_rows": 1067371,
+    "total_cols": 8,
+    "min_date": "2009-12-01 07:45:00",
+    "max_date": "2011-12-09 12:50:00",
+    "distinct_invoices": 53628,
+    "distinct_customers": 5942,
+    "desc_stats": {
+        "Quantity": {
+            "count": 1067371,
+            "mean": 9.9388984711033,
+            "median": 3.0,
+            "std": 172.70579407675342,
+            "min": -80995.0,
+            "q1": 1.0,
+            "q3": 10.0,
+            "max": 80995.0,
+            "skew": 3.996144614707456,
+            "kurt": 155059.6934016398
+        },
+        "Price": {
+            "count": 1067371,
+            "mean": 4.649387727416239,
+            "median": 2.1,
+            "std": 123.5530587214632,
+            "min": -53594.36,
+            "q1": 1.25,
+            "q3": 4.15,
+            "max": 38970.0,
+            "skew": -69.1647338572545,
+            "kurt": 73751.82895558054
+        }
+    },
+    "cat_stats": {
+        "Country": {
+            "count": 1067371,
+            "nunique": 43,
+            "top": "United Kingdom",
+            "top_freq": 981330,
+            "nulls": 0
+        },
+        "StockCode": {
+            "count": 1067371,
+            "nunique": 5305,
+            "top": "85123A",
+            "top_freq": 5829,
+            "nulls": 0
+        }
+    },
+    "top3_country": {
+        "United Kingdom": {
+            "lines": 981330,
+            "pct": 91.93897904290074
+        },
+        "EIRE": {
+            "lines": 17866,
+            "pct": 1.6738322476439778
+        },
+        "Germany": {
+            "lines": 17624,
+            "pct": 1.6511597185983131
+        }
+    },
+    "top3_stockcode": {
+        "85123A": {
+            "lines": 5829,
+            "pct": 0.5461081479635479
+        },
+        "22423": {
+            "lines": 4424,
+            "pct": 0.4144763161075203
+        },
+        "85099B": {
+            "lines": 4216,
+            "pct": 0.39498918370463504
+        }
+    },
+    "situations": [
+        {
+            "Situation": "Duplicados exactos adicionales",
+            "Lines": 34335,
+            "Percent": 3.2167821685243467
+        },
+        {
+            "Situation": "Quantity < 0",
+            "Lines": 22950,
+            "Percent": 2.1501427338760375
+        },
+        {
+            "Situation": "Quantity = 0",
+            "Lines": 0,
+            "Percent": 0.0
+        },
+        {
+            "Situation": "Price < 0",
+            "Lines": 5,
+            "Percent": 0.0004684406827616639
+        },
+        {
+            "Situation": "Price = 0",
+            "Lines": 6202,
+            "Percent": 0.5810538228975679
+        }
+    ],
+    "c_lines": 19494,
+    "c_invs": 8292,
+    "c_q_neg": 19493,
+    "c_q_zero": 0,
+    "c_q_pos": 1,
+    "no_c_q_neg_lines": 3457,
+    "no_c_q_neg_invs": 3393
+}

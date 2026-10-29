@@ -1,0 +1,14 @@
+# LaTeX temporary files
+*.aux
+*.bbl
+*.blg
+*.fdb_latexmk
+*.fls
+*.log
+*.out
+*.synctex.gz
+
+# Python & Jupyter
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
