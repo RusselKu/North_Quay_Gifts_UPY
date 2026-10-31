@@ -8,10 +8,10 @@
   "n_grupos_dup": 32907,
   "n_lineas_en_dup": 67242,
   "otras": {
-   "Fecha no interpretable": 0,
-   "Quantity no numérica": 0,
-   "Price no numérico": 0,
-   "Identificador nulo": 0
+   "Unparseable date": 0,
+   "Non-numeric Quantity": 0,
+   "Non-numeric Price": 0,
+   "Null identifier": 0
   },
   "n_base": 1033036,
   "clientes_nulos_base": 235151
@@ -26,8 +26,8 @@
    "cond_Q": 22496,
    "cond_P": 6019,
    "motivo": {
-    "Compra válida": 1007913,
-    "Prefijo C": 19104,
+    "Valid purchase": 1007913,
+    "C prefix": 19104,
     "Quantity <= 0": 3393,
     "Price <= 0": 2626
    }
@@ -39,11 +39,11 @@
    "abonos": 19103,
    "abonos_facturas": 8291,
    "estados": {
-    "Compra válida": 1007913,
-    "Abono C reconocido": 19103,
-    "Negativo sin C": 3393,
-    "Precio no positivo sin C": 2626,
-    "Excepción C (Q>=0 o P<=0)": 1
+    "Valid purchase": 1007913,
+    "Recognized C credit": 19103,
+    "Negative without C": 3393,
+    "Non-positive price without C": 2626,
+    "C exception (Q>=0 or P<=0)": 1
    }
   },
   "exc_C": 1,
@@ -76,21 +76,21 @@
  },
  "conciliacion": {
   "tabla": {
-   "Conciliada": {
+   "Reconciled": {
     "lineas": 9827,
     "facturas": 4935,
     "unidades": 368121,
     "importe": 588174.9,
     "pct": 51.44
    },
-   "Ambigua": {
+   "Ambiguous": {
     "lineas": 5393,
     "facturas": 2829,
     "unidades": 60440,
     "importe": 132723.5,
     "pct": 28.23
    },
-   "No conciliada": {
+   "Unreconciled": {
     "lineas": 3883,
     "facturas": 2351,
     "unidades": 48259,
@@ -100,43 +100,43 @@
   },
   "motivos": [
    {
-    "Status": "Ambigua",
-    "Reason": "Varias facturas candidatas",
+    "Status": "Ambiguous",
+    "Reason": "Several candidate invoices",
     "n": 5381
    },
    {
-    "Status": "Ambigua",
-    "Reason": "Única candidata con saldo comprometido por un abono anterior pendiente",
+    "Status": "Ambiguous",
+    "Reason": "Single candidate whose balance is committed by an earlier pending credit",
     "n": 12
    },
    {
-    "Status": "Conciliada",
-    "Reason": "Única factura previa con saldo suficiente",
+    "Status": "Reconciled",
+    "Reason": "Single earlier invoice with sufficient balance",
     "n": 9827
    },
    {
-    "Status": "No conciliada",
-    "Reason": "Compras previas solo con precio diferente",
+    "Status": "Unreconciled",
+    "Reason": "Earlier purchases only at a different price",
     "n": 846
    },
    {
-    "Status": "No conciliada",
-    "Reason": "Saldo previo insuficiente",
+    "Status": "Unreconciled",
+    "Reason": "Insufficient earlier balance",
     "n": 172
    },
    {
-    "Status": "No conciliada",
-    "Reason": "Sin cliente identificado",
-    "n": 713
-   },
-   {
-    "Status": "No conciliada",
-    "Reason": "Sin compra previa del cliente para ese producto",
+    "Status": "Unreconciled",
+    "Reason": "No earlier purchase of the product by the customer",
     "n": 2060
    },
    {
-    "Status": "No conciliada",
-    "Reason": "Unidades repartidas en varias facturas (no se fuerza)",
+    "Status": "Unreconciled",
+    "Reason": "No identified customer",
+    "n": 713
+   },
+   {
+    "Status": "Unreconciled",
+    "Reason": "Units spread over several invoices (not forced)",
     "n": 92
    }
   ],
@@ -145,7 +145,7 @@
   "facturas_multi_estado": 1614,
   "grupos_compra": 769031,
   "casos": {
-   "Conciliada (total)": {
+   "Reconciled (full)": {
     "SourceRow": "1354",
     "Invoice": "C489563",
     "CustomerID": "13526",
@@ -158,10 +158,10 @@
     "LinkedInvoice": "489560",
     "LinkedInvoiceUnits": "24",
     "PartialReturn": "False",
-    "Status": "Conciliada",
-    "Reason": "Única factura previa con saldo suficiente"
+    "Status": "Reconciled",
+    "Reason": "Single earlier invoice with sufficient balance"
    },
-   "Conciliada (parcial)": {
+   "Reconciled (partial)": {
     "SourceRow": "1163",
     "Invoice": "C489554",
     "CustomerID": "13767",
@@ -174,10 +174,10 @@
     "LinkedInvoice": "489465",
     "LinkedInvoiceUnits": "24",
     "PartialReturn": "True",
-    "Status": "Conciliada",
-    "Reason": "Única factura previa con saldo suficiente"
+    "Status": "Reconciled",
+    "Reason": "Single earlier invoice with sufficient balance"
    },
-   "Ambigua": {
+   "Ambiguous": {
     "SourceRow": "1377",
     "Invoice": "C489565",
     "CustomerID": "13526",
@@ -190,10 +190,10 @@
     "LinkedInvoice": "nan",
     "LinkedInvoiceUnits": "<NA>",
     "PartialReturn": "False",
-    "Status": "Ambigua",
-    "Reason": "Varias facturas candidatas"
+    "Status": "Ambiguous",
+    "Reason": "Several candidate invoices"
    },
-   "No conciliada (con cliente)": {
+   "Unreconciled (with customer)": {
     "SourceRow": "179",
     "Invoice": "C489449",
     "CustomerID": "16321",
@@ -206,10 +206,10 @@
     "LinkedInvoice": "nan",
     "LinkedInvoiceUnits": "<NA>",
     "PartialReturn": "False",
-    "Status": "No conciliada",
-    "Reason": "Sin compra previa del cliente para ese producto"
+    "Status": "Unreconciled",
+    "Reason": "No earlier purchase of the product by the customer"
    },
-   "No conciliada (sin cliente)": {
+   "Unreconciled (no customer)": {
     "SourceRow": "5898",
     "Invoice": "C489859",
     "CustomerID": "<NA>",
@@ -222,8 +222,8 @@
     "LinkedInvoice": "nan",
     "LinkedInvoiceUnits": "<NA>",
     "PartialReturn": "False",
-    "Status": "No conciliada",
-    "Reason": "Sin cliente identificado"
+    "Status": "Unreconciled",
+    "Reason": "No identified customer"
    }
   }
  },
@@ -273,19 +273,19 @@
   "sin_elegibles": []
  },
  "totales": {
-  "Pedidos diarios sumados": {
+  "Summed daily orders": {
    "A": 40077.0,
    "B": 40077.0,
    "d": 0.0,
    "p": 0.0
   },
-  "Unidades": {
+  "Units": {
    "A": 11205148.0,
    "B": 10728328.0,
    "d": -476820.0,
    "p": -4.255365480223912
   },
-  "Ingresos en GBP": {
+  "Revenue in GBP": {
    "A": 20476260.448,
    "B": 19013836.268,
    "d": -1462424.1799999997,
@@ -312,7 +312,7 @@
      "amt": -168469.6,
      "cid": 16446,
      "hora": "2011-12-09 09:27:00",
-     "estado": "Conciliada",
+     "estado": "Reconciled",
      "link": "581483"
     },
     {
@@ -324,7 +324,7 @@
      "amt": -224.69,
      "cid": 15498,
      "hora": "2011-12-09 10:28:00",
-     "estado": "No conciliada",
+     "estado": "Unreconciled",
      "link": "nan"
     },
     {
@@ -336,7 +336,7 @@
      "amt": -54.75,
      "cid": 15311,
      "hora": "2011-12-09 11:57:00",
-     "estado": "Ambigua",
+     "estado": "Ambiguous",
      "link": "nan"
     }
    ]
@@ -360,7 +360,7 @@
      "amt": -77183.6,
      "cid": 12346,
      "hora": "2011-01-18 10:17:00",
-     "estado": "Conciliada",
+     "estado": "Reconciled",
      "link": "541431"
     },
     {
@@ -372,7 +372,7 @@
      "amt": -25.5,
      "cid": 17576,
      "hora": "2011-01-18 16:52:00",
-     "estado": "Conciliada",
+     "estado": "Reconciled",
      "link": "541511"
     },
     {
@@ -384,7 +384,7 @@
      "amt": -14.850000000000001,
      "cid": 13693,
      "hora": "2011-01-18 15:23:00",
-     "estado": "Conciliada",
+     "estado": "Reconciled",
      "link": "536360"
     }
    ]
@@ -408,7 +408,7 @@
      "amt": -13541.33,
      "cid": null,
      "hora": "2010-12-07 15:49:00",
-     "estado": "No conciliada",
+     "estado": "Unreconciled",
      "link": "nan"
     },
     {
@@ -420,7 +420,7 @@
      "amt": -13541.33,
      "cid": null,
      "hora": "2010-12-07 15:04:00",
-     "estado": "No conciliada",
+     "estado": "Unreconciled",
      "link": "nan"
     },
     {
@@ -432,7 +432,7 @@
      "amt": -13474.79,
      "cid": null,
      "hora": "2010-12-07 15:34:00",
-     "estado": "No conciliada",
+     "estado": "Unreconciled",
      "link": "nan"
     }
    ]
@@ -440,354 +440,354 @@
  ],
  "mensual": {
   "2009-12": {
-   "Pedidos": 1682.0,
-   "UnidadesA": 425461.0,
-   "IngresosA": 822483.9500000001,
-   "Dias": 21.0,
-   "UnidadesB": 415445.0,
-   "IngresosB": 796648.5,
-   "ΔIngresos": -25835.45000000007,
-   "Δ%Ingresos": -3.1411494412748198,
-   "ΔUnidades": -10016.0,
-   "VarMensual_A_%": NaN,
-   "VarMensual_B_%": NaN,
-   "Parcial": "Parcial"
+   "Orders": 1682.0,
+   "UnitsA": 425461.0,
+   "RevenueA": 822483.9500000001,
+   "Days": 21.0,
+   "UnitsB": 415445.0,
+   "RevenueB": 796648.5,
+   "dRevenue": -25835.45000000007,
+   "dRevenue_%": -3.1411494412748198,
+   "dUnits": -10016.0,
+   "MoM_A_%": NaN,
+   "MoM_B_%": NaN,
+   "Partial": "Partial"
   },
   "2010-01": {
-   "Pedidos": 1105.0,
-   "UnidadesA": 390672.0,
-   "IngresosA": 651155.112,
-   "Dias": 24.0,
-   "UnidadesB": 386792.0,
-   "IngresosB": 622479.502,
-   "ΔIngresos": -28675.609999999986,
-   "Δ%Ingresos": -4.403806323799541,
-   "ΔUnidades": -3880.0,
-   "VarMensual_A_%": -20.830660342976913,
-   "VarMensual_B_%": -21.862715865278105,
-   "Parcial": ""
+   "Orders": 1105.0,
+   "UnitsA": 390672.0,
+   "RevenueA": 651155.112,
+   "Days": 24.0,
+   "UnitsB": 386792.0,
+   "RevenueB": 622479.502,
+   "dRevenue": -28675.609999999986,
+   "dRevenue_%": -4.403806323799541,
+   "dUnits": -3880.0,
+   "MoM_A_%": -20.830660342976913,
+   "MoM_B_%": -21.862715865278105,
+   "Partial": ""
   },
   "2010-02": {
-   "Pedidos": 1201.0,
-   "UnidadesA": 381879.0,
-   "IngresosA": 551504.726,
-   "Dias": 24.0,
-   "UnidadesB": 374927.0,
-   "IngresosB": 530891.796,
-   "ΔIngresos": -20612.93000000005,
-   "Δ%Ingresos": -3.7375799387075515,
-   "ΔUnidades": -6952.0,
-   "VarMensual_A_%": -15.303632600522366,
-   "VarMensual_B_%": -14.71336898736948,
-   "Parcial": ""
+   "Orders": 1201.0,
+   "UnitsA": 381879.0,
+   "RevenueA": 551504.726,
+   "Days": 24.0,
+   "UnitsB": 374927.0,
+   "RevenueB": 530891.796,
+   "dRevenue": -20612.93000000005,
+   "dRevenue_%": -3.7375799387075515,
+   "dUnits": -6952.0,
+   "MoM_A_%": -15.303632600522366,
+   "MoM_B_%": -14.71336898736948,
+   "Partial": ""
   },
   "2010-03": {
-   "Pedidos": 1681.0,
-   "UnidadesA": 526026.0,
-   "IngresosA": 830915.2609999999,
-   "Dias": 27.0,
-   "UnidadesB": 521549.0,
-   "IngresosB": 763247.241,
-   "ΔIngresos": -67668.0199999999,
-   "Δ%Ingresos": -8.143793137047691,
-   "ΔUnidades": -4477.0,
-   "VarMensual_A_%": 50.66330746184755,
-   "VarMensual_B_%": 43.76700614902704,
-   "Parcial": ""
+   "Orders": 1681.0,
+   "UnitsA": 526026.0,
+   "RevenueA": 830915.2609999999,
+   "Days": 27.0,
+   "UnitsB": 521549.0,
+   "RevenueB": 763247.241,
+   "dRevenue": -67668.0199999999,
+   "dRevenue_%": -8.143793137047691,
+   "dUnits": -4477.0,
+   "MoM_A_%": 50.66330746184755,
+   "MoM_B_%": 43.76700614902704,
+   "Partial": ""
   },
   "2010-04": {
-   "Pedidos": 1462.0,
-   "UnidadesA": 366705.0,
-   "IngresosA": 678875.252,
-   "Dias": 23.0,
-   "UnidadesB": 360222.0,
-   "IngresosB": 641521.052,
-   "ΔIngresos": -37354.19999999995,
-   "Δ%Ingresos": -5.502365845558906,
-   "ΔUnidades": -6483.0,
-   "VarMensual_A_%": -18.297895842834922,
-   "VarMensual_B_%": -15.948461057063945,
-   "Parcial": ""
+   "Orders": 1462.0,
+   "UnitsA": 366705.0,
+   "RevenueA": 678875.252,
+   "Days": 23.0,
+   "UnitsB": 360222.0,
+   "RevenueB": 641521.052,
+   "dRevenue": -37354.19999999995,
+   "dRevenue_%": -5.502365845558906,
+   "dUnits": -6483.0,
+   "MoM_A_%": -18.297895842834922,
+   "MoM_B_%": -15.948461057063945,
+   "Partial": ""
   },
   "2010-05": {
-   "Pedidos": 1500.0,
-   "UnidadesA": 395868.0,
-   "IngresosA": 657705.5,
-   "Dias": 24.0,
-   "UnidadesB": 379269.0,
-   "IngresosB": 613270.72,
-   "ΔIngresos": -44434.78000000003,
-   "Δ%Ingresos": -6.756029864430209,
-   "ΔUnidades": -16599.0,
-   "VarMensual_A_%": -3.118356713937187,
-   "VarMensual_B_%": -4.403648471383292,
-   "Parcial": ""
+   "Orders": 1500.0,
+   "UnitsA": 395868.0,
+   "RevenueA": 657705.5,
+   "Days": 24.0,
+   "UnitsB": 379269.0,
+   "RevenueB": 613270.72,
+   "dRevenue": -44434.78000000003,
+   "dRevenue_%": -6.756029864430209,
+   "dUnits": -16599.0,
+   "MoM_A_%": -3.118356713937187,
+   "MoM_B_%": -4.403648471383292,
+   "Partial": ""
   },
   "2010-06": {
-   "Pedidos": 1645.0,
-   "UnidadesA": 406820.0,
-   "IngresosA": 749537.3099999999,
-   "Dias": 26.0,
-   "UnidadesB": 391338.0,
-   "IngresosB": 677073.87,
-   "ΔIngresos": -72463.43999999994,
-   "Δ%Ingresos": -9.667756232174746,
-   "ΔUnidades": -15482.0,
-   "VarMensual_A_%": 13.962451279486032,
-   "VarMensual_B_%": 10.403749587131772,
-   "Parcial": ""
+   "Orders": 1645.0,
+   "UnitsA": 406820.0,
+   "RevenueA": 749537.3099999999,
+   "Days": 26.0,
+   "UnitsB": 391338.0,
+   "RevenueB": 677073.87,
+   "dRevenue": -72463.43999999994,
+   "dRevenue_%": -9.667756232174746,
+   "dUnits": -15482.0,
+   "MoM_A_%": 13.962451279486032,
+   "MoM_B_%": 10.403749587131772,
+   "Partial": ""
   },
   "2010-07": {
-   "Pedidos": 1529.0,
-   "UnidadesA": 337895.0,
-   "IngresosA": 648810.27,
-   "Dias": 26.0,
-   "UnidadesB": 331710.0,
-   "IngresosB": 617365.48,
-   "ΔIngresos": -31444.790000000037,
-   "Δ%Ingresos": -4.846530866411846,
-   "ΔUnidades": -6185.0,
-   "VarMensual_A_%": -13.438562517988583,
-   "VarMensual_B_%": -8.818593161777166,
-   "Parcial": ""
+   "Orders": 1529.0,
+   "UnitsA": 337895.0,
+   "RevenueA": 648810.27,
+   "Days": 26.0,
+   "UnitsB": 331710.0,
+   "RevenueB": 617365.48,
+   "dRevenue": -31444.790000000037,
+   "dRevenue_%": -4.846530866411846,
+   "dUnits": -6185.0,
+   "MoM_A_%": -13.438562517988583,
+   "MoM_B_%": -8.818593161777166,
+   "Partial": ""
   },
   "2010-08": {
-   "Pedidos": 1425.0,
-   "UnidadesA": 472380.0,
-   "IngresosA": 695251.91,
-   "Dias": 26.0,
-   "UnidadesB": 465691.0,
-   "IngresosB": 654774.39,
-   "ΔIngresos": -40477.52000000002,
-   "Δ%Ingresos": -5.821993354897797,
-   "ΔUnidades": -6689.0,
-   "VarMensual_A_%": 7.157969308962997,
-   "VarMensual_B_%": 6.059443103297579,
-   "Parcial": ""
+   "Orders": 1425.0,
+   "UnitsA": 472380.0,
+   "RevenueA": 695251.91,
+   "Days": 26.0,
+   "UnitsB": 465691.0,
+   "RevenueB": 654774.39,
+   "dRevenue": -40477.52000000002,
+   "dRevenue_%": -5.821993354897797,
+   "dUnits": -6689.0,
+   "MoM_A_%": 7.157969308962997,
+   "MoM_B_%": 6.059443103297579,
+   "Partial": ""
   },
   "2010-09": {
-   "Pedidos": 1839.0,
-   "UnidadesA": 583864.0,
-   "IngresosA": 921696.991,
-   "Dias": 26.0,
-   "UnidadesB": 488583.0,
-   "IngresosB": 851105.961,
-   "ΔIngresos": -70591.03000000003,
-   "Δ%Ingresos": -7.658810942130984,
-   "ΔUnidades": -95281.0,
-   "VarMensual_A_%": 32.57022062693793,
-   "VarMensual_B_%": 29.984613631574675,
-   "Parcial": ""
+   "Orders": 1839.0,
+   "UnitsA": 583864.0,
+   "RevenueA": 921696.991,
+   "Days": 26.0,
+   "UnitsB": 488583.0,
+   "RevenueB": 851105.961,
+   "dRevenue": -70591.03000000003,
+   "dRevenue_%": -7.658810942130984,
+   "dUnits": -95281.0,
+   "MoM_A_%": 32.57022062693793,
+   "MoM_B_%": 29.984613631574675,
+   "Partial": ""
   },
   "2010-10": {
-   "Pedidos": 2301.0,
-   "UnidadesA": 619996.0,
-   "IngresosA": 1161902.22,
-   "Dias": 26.0,
-   "UnidadesB": 608496.0,
-   "IngresosB": 1080611.48,
-   "ΔIngresos": -81290.73999999999,
-   "Δ%Ingresos": -6.996349486276047,
-   "ΔUnidades": -11500.0,
-   "VarMensual_A_%": 26.061192707094328,
-   "VarMensual_B_%": 26.965563574521823,
-   "Parcial": ""
+   "Orders": 2301.0,
+   "UnitsA": 619996.0,
+   "RevenueA": 1161902.22,
+   "Days": 26.0,
+   "UnitsB": 608496.0,
+   "RevenueB": 1080611.48,
+   "dRevenue": -81290.73999999999,
+   "dRevenue_%": -6.996349486276047,
+   "dUnits": -11500.0,
+   "MoM_A_%": 26.061192707094328,
+   "MoM_B_%": 26.965563574521823,
+   "Partial": ""
   },
   "2010-11": {
-   "Pedidos": 2747.0,
-   "UnidadesA": 725161.0,
-   "IngresosA": 1464293.142,
-   "Dias": 26.0,
-   "UnidadesB": 707445.0,
-   "IngresosB": 1416697.202,
-   "ΔIngresos": -47595.939999999944,
-   "Δ%Ingresos": -3.250437950900404,
-   "ΔUnidades": -17716.0,
-   "VarMensual_A_%": 26.025505141043624,
-   "VarMensual_B_%": 31.101439159243437,
-   "Parcial": ""
+   "Orders": 2747.0,
+   "UnitsA": 725161.0,
+   "RevenueA": 1464293.142,
+   "Days": 26.0,
+   "UnitsB": 707445.0,
+   "RevenueB": 1416697.202,
+   "dRevenue": -47595.939999999944,
+   "dRevenue_%": -3.250437950900404,
+   "dUnits": -17716.0,
+   "MoM_A_%": 26.025505141043624,
+   "MoM_B_%": 31.101439159243437,
+   "Partial": ""
   },
   "2010-12": {
-   "Pedidos": 1559.0,
-   "UnidadesA": 358019.0,
-   "IngresosA": 821452.73,
-   "Dias": 20.0,
-   "UnidadesB": 342009.0,
-   "IngresosB": 746723.61,
-   "ΔIngresos": -74729.12,
-   "Δ%Ingresos": -9.097190534627599,
-   "ΔUnidades": -16010.0,
-   "VarMensual_A_%": -43.901073737324104,
-   "VarMensual_B_%": -47.291234220987754,
-   "Parcial": ""
+   "Orders": 1559.0,
+   "UnitsA": 358019.0,
+   "RevenueA": 821452.73,
+   "Days": 20.0,
+   "UnitsB": 342009.0,
+   "RevenueB": 746723.61,
+   "dRevenue": -74729.12,
+   "dRevenue_%": -9.097190534627599,
+   "dUnits": -16010.0,
+   "MoM_A_%": -43.901073737324104,
+   "MoM_B_%": -47.291234220987754,
+   "Partial": ""
   },
   "2011-01": {
-   "Pedidos": 1086.0,
-   "UnidadesA": 387099.0,
-   "IngresosA": 689811.61,
-   "Dias": 24.0,
-   "UnidadesB": 307255.0,
-   "IngresosB": 558448.5599999999,
-   "ΔIngresos": -131363.05000000005,
-   "Δ%Ingresos": -19.04332256744708,
-   "ΔUnidades": -79844.0,
-   "VarMensual_A_%": -16.025404164156832,
-   "VarMensual_B_%": -25.213485616184016,
-   "Parcial": ""
+   "Orders": 1086.0,
+   "UnitsA": 387099.0,
+   "RevenueA": 689811.61,
+   "Days": 24.0,
+   "UnitsB": 307255.0,
+   "RevenueB": 558448.5599999999,
+   "dRevenue": -131363.05000000005,
+   "dRevenue_%": -19.04332256744708,
+   "dUnits": -79844.0,
+   "MoM_A_%": -16.025404164156832,
+   "MoM_B_%": -25.213485616184016,
+   "Partial": ""
   },
   "2011-02": {
-   "Pedidos": 1100.0,
-   "UnidadesA": 282934.0,
-   "IngresosA": 522545.56,
-   "Dias": 24.0,
-   "UnidadesB": 280069.0,
-   "IngresosB": 497026.41000000003,
-   "ΔIngresos": -25519.149999999965,
-   "Δ%Ingresos": -4.883622013743636,
-   "ΔUnidades": -2865.0,
-   "VarMensual_A_%": -24.24807694958918,
-   "VarMensual_B_%": -10.998712218006245,
-   "Parcial": ""
+   "Orders": 1100.0,
+   "UnitsA": 282934.0,
+   "RevenueA": 522545.56,
+   "Days": 24.0,
+   "UnitsB": 280069.0,
+   "RevenueB": 497026.41000000003,
+   "dRevenue": -25519.149999999965,
+   "dRevenue_%": -4.883622013743636,
+   "dUnits": -2865.0,
+   "MoM_A_%": -24.24807694958918,
+   "MoM_B_%": -10.998712218006245,
+   "Partial": ""
   },
   "2011-03": {
-   "Pedidos": 1454.0,
-   "UnidadesA": 376599.0,
-   "IngresosA": 716215.26,
-   "Dias": 27.0,
-   "UnidadesB": 371424.0,
-   "IngresosB": 682013.98,
-   "ΔIngresos": -34201.28000000003,
-   "Δ%Ingresos": -4.775279432052317,
-   "ΔUnidades": -5175.0,
-   "VarMensual_A_%": 37.06273956284309,
-   "VarMensual_B_%": 37.21886126735197,
-   "Parcial": ""
+   "Orders": 1454.0,
+   "UnitsA": 376599.0,
+   "RevenueA": 716215.26,
+   "Days": 27.0,
+   "UnitsB": 371424.0,
+   "RevenueB": 682013.98,
+   "dRevenue": -34201.28000000003,
+   "dRevenue_%": -4.775279432052317,
+   "dUnits": -5175.0,
+   "MoM_A_%": 37.06273956284309,
+   "MoM_B_%": 37.21886126735197,
+   "Partial": ""
   },
   "2011-04": {
-   "Pedidos": 1246.0,
-   "UnidadesA": 307953.0,
-   "IngresosA": 536968.491,
-   "Dias": 21.0,
-   "UnidadesB": 294309.0,
-   "IngresosB": 492367.841,
-   "ΔIngresos": -44600.65000000002,
-   "Δ%Ingresos": -8.306008778455498,
-   "ΔUnidades": -13644.0,
-   "VarMensual_A_%": -25.026940783138297,
-   "VarMensual_B_%": -27.806781761277087,
-   "Parcial": ""
+   "Orders": 1246.0,
+   "UnitsA": 307953.0,
+   "RevenueA": 536968.491,
+   "Days": 21.0,
+   "UnitsB": 294309.0,
+   "RevenueB": 492367.841,
+   "dRevenue": -44600.65000000002,
+   "dRevenue_%": -8.306008778455498,
+   "dUnits": -13644.0,
+   "MoM_A_%": -25.026940783138297,
+   "MoM_B_%": -27.806781761277087,
+   "Partial": ""
   },
   "2011-05": {
-   "Pedidos": 1681.0,
-   "UnidadesA": 395001.0,
-   "IngresosA": 769296.61,
-   "Dias": 25.0,
-   "UnidadesB": 389133.0,
-   "IngresosB": 722094.1,
-   "ΔIngresos": -47202.51000000001,
-   "Δ%Ingresos": -6.135801118374876,
-   "ΔUnidades": -5868.0,
-   "VarMensual_A_%": 43.2666204617209,
-   "VarMensual_B_%": 46.6574458911503,
-   "Parcial": ""
+   "Orders": 1681.0,
+   "UnitsA": 395001.0,
+   "RevenueA": 769296.61,
+   "Days": 25.0,
+   "UnitsB": 389133.0,
+   "RevenueB": 722094.1,
+   "dRevenue": -47202.51000000001,
+   "dRevenue_%": -6.135801118374876,
+   "dUnits": -5868.0,
+   "MoM_A_%": 43.2666204617209,
+   "MoM_B_%": 46.6574458911503,
+   "Partial": ""
   },
   "2011-06": {
-   "Pedidos": 1533.0,
-   "UnidadesA": 388511.0,
-   "IngresosA": 760547.01,
-   "Dias": 26.0,
-   "UnidadesB": 381175.0,
-   "IngresosB": 689977.23,
-   "ΔIngresos": -70569.78000000003,
-   "Δ%Ingresos": -9.278818938490078,
-   "ΔUnidades": -7336.0,
-   "VarMensual_A_%": -1.1373506507457498,
-   "VarMensual_B_%": -4.447740259891331,
-   "Parcial": ""
+   "Orders": 1533.0,
+   "UnitsA": 388511.0,
+   "RevenueA": 760547.01,
+   "Days": 26.0,
+   "UnitsB": 381175.0,
+   "RevenueB": 689977.23,
+   "dRevenue": -70569.78000000003,
+   "dRevenue_%": -9.278818938490078,
+   "dUnits": -7336.0,
+   "MoM_A_%": -1.1373506507457498,
+   "MoM_B_%": -4.447740259891331,
+   "Partial": ""
   },
   "2011-07": {
-   "Pedidos": 1475.0,
-   "UnidadesA": 399693.0,
-   "IngresosA": 718076.121,
-   "Dias": 26.0,
-   "UnidadesB": 393666.0,
-   "IngresosB": 680156.991,
-   "ΔIngresos": -37919.130000000005,
-   "Δ%Ingresos": -5.28065603228714,
-   "ΔUnidades": -6027.0,
-   "VarMensual_A_%": -5.584255600452625,
-   "VarMensual_B_%": -1.4232700113886332,
-   "Parcial": ""
+   "Orders": 1475.0,
+   "UnitsA": 399693.0,
+   "RevenueA": 718076.121,
+   "Days": 26.0,
+   "UnitsB": 393666.0,
+   "RevenueB": 680156.991,
+   "dRevenue": -37919.130000000005,
+   "dRevenue_%": -5.28065603228714,
+   "dUnits": -6027.0,
+   "MoM_A_%": -5.584255600452625,
+   "MoM_B_%": -1.4232700113886332,
+   "Partial": ""
   },
   "2011-08": {
-   "Pedidos": 1361.0,
-   "UnidadesA": 421020.0,
-   "IngresosA": 757841.38,
-   "Dias": 26.0,
-   "UnidadesB": 408675.0,
-   "IngresosB": 703510.58,
-   "ΔIngresos": -54330.80000000005,
-   "Δ%Ingresos": -7.169151940475993,
-   "ΔUnidades": -12345.0,
-   "VarMensual_A_%": 5.537749806332859,
-   "VarMensual_B_%": 3.433558620880217,
-   "Parcial": ""
+   "Orders": 1361.0,
+   "UnitsA": 421020.0,
+   "RevenueA": 757841.38,
+   "Days": 26.0,
+   "UnitsB": 408675.0,
+   "RevenueB": 703510.58,
+   "dRevenue": -54330.80000000005,
+   "dRevenue_%": -7.169151940475993,
+   "dUnits": -12345.0,
+   "MoM_A_%": 5.537749806332859,
+   "MoM_B_%": 3.433558620880217,
+   "Partial": ""
   },
   "2011-09": {
-   "Pedidos": 1837.0,
-   "UnidadesA": 569573.0,
-   "IngresosA": 1056435.192,
-   "Dias": 26.0,
-   "UnidadesB": 562243.0,
-   "IngresosB": 1017596.682,
-   "ΔIngresos": -38838.51000000001,
-   "Δ%Ingresos": -3.676374120637966,
-   "ΔUnidades": -7330.0,
-   "VarMensual_A_%": 39.40056849363385,
-   "VarMensual_B_%": 44.6455406541292,
-   "Parcial": ""
+   "Orders": 1837.0,
+   "UnitsA": 569573.0,
+   "RevenueA": 1056435.192,
+   "Days": 26.0,
+   "UnitsB": 562243.0,
+   "RevenueB": 1017596.682,
+   "dRevenue": -38838.51000000001,
+   "dRevenue_%": -3.676374120637966,
+   "dUnits": -7330.0,
+   "MoM_A_%": 39.40056849363385,
+   "MoM_B_%": 44.6455406541292,
+   "Partial": ""
   },
   "2011-10": {
-   "Pedidos": 2040.0,
-   "UnidadesA": 621029.0,
-   "IngresosA": 1151263.73,
-   "Dias": 26.0,
-   "UnidadesB": 598077.0,
-   "IngresosB": 1069368.23,
-   "ΔIngresos": -81895.5,
-   "Δ%Ingresos": -7.113530798021405,
-   "ΔUnidades": -22952.0,
-   "VarMensual_A_%": 8.976275943673784,
-   "VarMensual_B_%": 5.087629403257021,
-   "Parcial": ""
+   "Orders": 2040.0,
+   "UnitsA": 621029.0,
+   "RevenueA": 1151263.73,
+   "Days": 26.0,
+   "UnitsB": 598077.0,
+   "RevenueB": 1069368.23,
+   "dRevenue": -81895.5,
+   "dRevenue_%": -7.113530798021405,
+   "dUnits": -22952.0,
+   "MoM_A_%": 8.976275943673784,
+   "MoM_B_%": 5.087629403257021,
+   "Partial": ""
   },
   "2011-11": {
-   "Pedidos": 2769.0,
-   "UnidadesA": 751377.0,
-   "IngresosA": 1503866.78,
-   "Dias": 26.0,
-   "UnidadesB": 738782.0,
-   "IngresosB": 1456145.8,
-   "ΔIngresos": -47720.97999999998,
-   "Δ%Ingresos": -3.173218574586772,
-   "ΔUnidades": -12595.0,
-   "VarMensual_A_%": 30.627478379780104,
-   "VarMensual_B_%": 36.1687919230591,
-   "Parcial": ""
+   "Orders": 2769.0,
+   "UnitsA": 751377.0,
+   "RevenueA": 1503866.78,
+   "Days": 26.0,
+   "UnitsB": 738782.0,
+   "RevenueB": 1456145.8,
+   "dRevenue": -47720.97999999998,
+   "dRevenue_%": -3.173218574586772,
+   "dUnits": -12595.0,
+   "MoM_A_%": 30.627478379780104,
+   "MoM_B_%": 36.1687919230591,
+   "Partial": ""
   },
   "2011-12": {
-   "Pedidos": 819.0,
-   "UnidadesA": 313613.0,
-   "IngresosA": 637808.33,
-   "Dias": 8.0,
-   "UnidadesB": 230044.0,
-   "IngresosB": 432719.06,
-   "ΔIngresos": -205089.26999999996,
-   "Δ%Ingresos": -32.15531380720599,
-   "ΔUnidades": -83569.0,
-   "VarMensual_A_%": -57.588774585472265,
-   "VarMensual_B_%": -70.28326009661944,
-   "Parcial": "Parcial"
+   "Orders": 819.0,
+   "UnitsA": 313613.0,
+   "RevenueA": 637808.33,
+   "Days": 8.0,
+   "UnitsB": 230044.0,
+   "RevenueB": 432719.06,
+   "dRevenue": -205089.26999999996,
+   "dRevenue_%": -32.15531380720599,
+   "dUnits": -83569.0,
+   "MoM_A_%": -57.588774585472265,
+   "MoM_B_%": -70.28326009661944,
+   "Partial": "Partial"
   }
  },
  "riesgos": {
@@ -809,51 +809,51 @@
   "abonos_M": -422926.13999999996
  },
  "trazabilidad": {
-  "Conciliada": {
+  "Reconciled": {
    "importe": -588174.9,
    "pct": 40.21917225137784
   },
-  "Ambigua": {
+  "Ambiguous": {
    "importe": -132723.5,
    "pct": 9.075581614084088
   },
-  "No conciliada": {
+  "Unreconciled": {
    "importe": -741525.78,
    "pct": 50.70524613453806
   },
   "pct_credito_sobre_A": -7.142047170741283,
   "por_tipo": {
-   "Mercancía": {
-    "Conciliada": -529604.79,
-    "Ambigua": -121199.3,
-    "No conciliada": -65691.44,
+   "Merchandise": {
+    "Reconciled": -529604.79,
+    "Ambiguous": -121199.3,
+    "Unreconciled": -65691.44,
     "Total": -716495.53
    },
-   "Servicio/ajuste": {
-    "Conciliada": -58570.11,
-    "Ambigua": -11524.2,
-    "No conciliada": -675834.34,
+   "Service/adjustment": {
+    "Reconciled": -58570.11,
+    "Ambiguous": -11524.2,
+    "Unreconciled": -675834.34,
     "Total": -745928.6499999999
    }
   },
   "por_tipo_pct": {
-   "Mercancía": {
-    "Conciliada": 73.91599358617074,
-    "Ambigua": 16.91556959189962,
-    "No conciliada": 9.16843682192965
+   "Merchandise": {
+    "Reconciled": 73.91599358617074,
+    "Ambiguous": 16.91556959189962,
+    "Unreconciled": 9.16843682192965
    },
-   "Servicio/ajuste": {
-    "Conciliada": 7.851972169188033,
-    "Ambigua": 1.5449466916172212,
-    "No conciliada": 90.60308113919476
+   "Service/adjustment": {
+    "Reconciled": 7.851972169188033,
+    "Ambiguous": 1.5449466916172212,
+    "Unreconciled": 90.60308113919476
    }
   },
   "no_conc_por_motivo": {
-   "Compras previas solo con precio diferente": -62698.04,
-   "Saldo previo insuficiente": -17975.190000000002,
-   "Sin cliente identificado": -377611.2,
-   "Sin compra previa del cliente para ese producto": -276975.77999999997,
-   "Unidades repartidas en varias facturas (no se fuerza)": -6265.57
+   "Earlier purchases only at a different price": -62698.04,
+   "Insufficient earlier balance": -17975.190000000002,
+   "No earlier purchase of the product by the customer": -276975.77999999997,
+   "No identified customer": -377611.2,
+   "Units spread over several invoices (not forced)": -6265.57
   }
  },
  "export": {
