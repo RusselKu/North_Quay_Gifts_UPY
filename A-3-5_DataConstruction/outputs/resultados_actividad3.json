@@ -1,0 +1,248 @@
+{
+ "origen": {
+  "file": "transacciones_procesadas.csv",
+  "route": "B",
+  "rows": 1027016,
+  "purchases": 1007913,
+  "credits": 19103,
+  "purchase_inv": 40077,
+  "credit_inv": 8291,
+  "period": [
+   "2009-12-01 07:45:00",
+   "2011-12-09 12:50:00"
+  ],
+  "nocust_lines": 229201,
+  "nocust_amount": 2723844.9799999995,
+  "nocust_pur_lines": 228488,
+  "nocust_pur_amount": 3101456.18,
+  "nocust_cre_lines": 713,
+  "nocust_cre_amount": -377611.2,
+  "nocust_pct": 22.317179089712333,
+  "customers_any": 5939,
+  "customers_pur": 5878
+ },
+ "rfm": {
+  "customers": 5878,
+  "file_rows": 5878,
+  "file_cols": [
+   "CustomerID",
+   "Recency",
+   "Frequency",
+   "Monetary"
+  ],
+  "null_ids": 0,
+  "dup_ids": 0,
+  "ref": "2011-12-10 00:00:00",
+  "first_purchase": "2009-12-01 07:45:00",
+  "last_purchase": "2011-12-09 12:50:00",
+  "rec_min": 1,
+  "rec_max": 739,
+  "freq_min": 1,
+  "freq_max": 398,
+  "monetary_sum": 16351040.94,
+  "eligible_sum": 16351040.958000002,
+  "eligible_pur": 17374804.268,
+  "eligible_cre": -1023763.31,
+  "credit_only_customers": 61,
+  "credit_only_lines": 128,
+  "credit_only_amount": -61049.67,
+  "monetary_le0": 41,
+  "monetary_lt0": 20,
+  "monetary_eq0": 21,
+  "le0_cases": {
+   "Credits equal purchases (net zero)": 21,
+   "Credits exceed purchases in the file": 20
+  },
+  "le0_min": -10953.5,
+  "le0_min_id": 12918,
+  "le0_status": {
+   "Ambiguous": 6,
+   "Reconciled": 242,
+   "Unreconciled": 146
+  },
+  "le0_status_amount": {
+   "Ambiguous": -7268.52,
+   "Reconciled": -280838.05,
+   "Unreconciled": -65139.74
+  },
+  "le0_credit_lines": 394,
+  "le0_noearlier_lines": 137,
+  "le0_eq0": 21
+ },
+ "manual": {
+  "L": {
+   "customer": 12378,
+   "valid_invoices": 2,
+   "purchase_lines": 301,
+   "credit_docs": 0,
+   "credit_lines": 0,
+   "last_purchase": "2011-08-02 10:34:00",
+   "recency": 130,
+   "purchases": 5416.32,
+   "credits": 0.0,
+   "monetary": 5416.32
+  },
+  "H": {
+   "customer": 17017,
+   "valid_invoices": 29,
+   "purchase_lines": 378,
+   "credit_docs": 12,
+   "credit_lines": 25,
+   "last_purchase": "2011-12-07 09:32:00",
+   "recency": 3,
+   "purchases": 12576.990000000002,
+   "credits": -6023.199999999999,
+   "monetary": 6553.790000000003
+  }
+ },
+ "manual_global": {
+  "lines_per_order": 21.083204847304497,
+  "med_freq": 3.0,
+  "med_lines": 52.0,
+  "H_credit_share": 0.4789063201926693,
+  "H_rank_freq": 152
+ },
+ "clas": {
+  "rows": 2724,
+  "pop_distinct": 2724,
+  "cols": [
+   "CustomerID",
+   "RecencyDays",
+   "TotalOrders",
+   "TotalSpent",
+   "Repurchase90Days"
+  ],
+  "null_ids": 0,
+  "dup_ids": 0,
+  "labels": [
+   0,
+   1
+  ],
+  "null_labels": 0,
+  "rec_min": 1,
+  "rec_max": 178,
+  "orders_min": 1,
+  "orders_max": 67,
+  "orders_int": "int64",
+  "pred_min": "2011-01-04 10:00:00",
+  "pred_max": "2011-06-30 20:08:00",
+  "pred_purchase_min": "2011-01-04 10:00:00",
+  "pred_purchase_max": "2011-06-30 20:08:00",
+  "obs_min": "2011-07-01 08:16:00",
+  "obs_max": "2011-09-28 16:45:00",
+  "after_cut_in_spent": 0,
+  "spent_sum": 3170670.66,
+  "spent_recalc": 3170670.6610000003,
+  "spent_pur": 3414043.5209999997,
+  "spent_cre": -243372.86,
+  "spent_na": 0,
+  "spent_le0": 9,
+  "dist": {
+   "0": {
+    "n": 1315,
+    "pct": 48.27459618208517
+   },
+   "1": {
+    "n": 1409,
+    "pct": 51.72540381791483
+   }
+  },
+  "le0_detail": {
+   "n": 9,
+   "eq0": 5,
+   "min": -1591.2,
+   "credit_lines": 63,
+   "linked_outside": 19,
+   "status": {
+    "Ambiguous": 14,
+    "Reconciled": 44,
+    "Unreconciled": 5
+   }
+  }
+ },
+ "ejemplos": {
+  "1": {
+   "customer": 12347,
+   "hist_purchase_inv": 3,
+   "hist_last": "2011-06-09 13:01:00",
+   "obs_purchase_inv": 1,
+   "obs_credit_docs": 0,
+   "obs_first_purchase": "2011-08-02 08:48:00",
+   "obs_credit_inv": [],
+   "obs_credit_amount": 0.0,
+   "row": {
+    "CustomerID": 12347.0,
+    "RecencyDays": 22.0,
+    "TotalOrders": 3.0,
+    "TotalSpent": 1494.16,
+    "Repurchase90Days": 1.0
+   }
+  },
+  "0": {
+   "customer": 12406,
+   "hist_purchase_inv": 1,
+   "hist_last": "2011-06-09 10:23:00",
+   "obs_purchase_inv": 0,
+   "obs_credit_docs": 1,
+   "obs_first_purchase": null,
+   "obs_credit_inv": [
+    "C562728"
+   ],
+   "obs_credit_amount": -134.55,
+   "row": {
+    "CustomerID": 12406.0,
+    "RecencyDays": 22.0,
+    "TotalOrders": 1.0,
+    "TotalSpent": 1621.25,
+    "Repurchase90Days": 0.0
+   }
+  },
+  "only_credit_after": 28
+ },
+ "leak": {
+  "aug_customers": 712,
+  "aug_amount": 544948.0800000001,
+  "spent_changed": 1436,
+  "leak_rec_nonpos_class1": 1409,
+  "class1": 1409,
+  "leak_rec_nonpos_class0": 0,
+  "mean_spent_c1_ok": 1782.4876721078779,
+  "mean_spent_c1_leak": 2972.4453804116397,
+  "mean_spent_c0_ok": 501.25135361216735,
+  "mean_spent_c0_leak": 500.33354448669206,
+  "ex1": {
+   "c": 12347,
+   "ok_spent": 1494.16,
+   "leak_spent": 2079.07,
+   "ok_rec": 22,
+   "leak_rec": -32
+  },
+  "new_after": 373,
+  "new_after_in_output": 0,
+  "buyers_after": 2089,
+  "buyers_not_in_pop": 680,
+  "buyers_not_in_pop_in_output": 0,
+  "returning_not_in_pop": 307,
+  "inner_rows": 1409
+ },
+ "clase0_late": {
+  "n": 462,
+  "total": 1315,
+  "pct": 35.133079847908746
+ },
+ "comp": {
+  "rfm_rows": 5878,
+  "rfm_cols": 4,
+  "cls_rows": 2724,
+  "cls_cols": 5,
+  "cls_subset_of_rfm": true,
+  "only_rfm": 3154,
+  "only_rfm_before": 1659,
+  "only_rfm_first_after": 837,
+  "only_rfm_gap": 658,
+  "nocust_hist_lines": 52169,
+  "nocust_hist_amount": 474989.08,
+  "hist_total_amount": 3641928.1210000003,
+  "total_amount": 19013836.268
+ }
+}
