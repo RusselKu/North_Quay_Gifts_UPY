@@ -1,0 +1,633 @@
+{
+ "seed": 42,
+ "route": "B",
+ "fc_design": {
+  "rows": 604,
+  "model_rows": 584,
+  "train": [
+   "2009-12-23",
+   "2011-09-30",
+   524
+  ],
+  "test": [
+   "2011-10-02",
+   "2011-12-09",
+   60
+  ]
+ },
+ "fc_cv": {
+  "Naive (last value)": 13011.878030000002,
+  "Linear regression": 7936.6723036866,
+  "Random forest (leaf=5)": 8145.320763287853,
+  "Random forest (leaf=10)": 8244.025107370055,
+  "Random forest (leaf=20)": 8333.12113807569
+ },
+ "fc_selected": "Linear regression",
+ "fc_best_rf": "Random forest (leaf=5)",
+ "fc_test": {
+  "Naive (last value)": {
+   "MAE": 18359.951999999997,
+   "RMSE": 23954.148100709892,
+   "R2": -0.72846429637352,
+   "MAE vs naive %": 0.0,
+   "RMSE vs naive %": 0.0
+  },
+  "Linear regression": {
+   "MAE": 11451.269378312492,
+   "RMSE": 15580.403953655643,
+   "R2": 0.2687659952284698,
+   "MAE vs naive %": -37.62908869090456,
+   "RMSE vs naive %": -34.95738655304586
+  },
+  "Random forest (leaf=5)": {
+   "MAE": 10158.306490036215,
+   "RMSE": 14003.23358753735,
+   "R2": 0.409315439798019,
+   "MAE vs naive %": -44.67138862870548,
+   "RMSE vs naive %": -41.54150868290591
+  }
+ },
+ "fc_train_selected": {
+  "MAE": 8147.147065509523,
+  "RMSE": 11436.582193739683,
+  "R2": 0.40583705876105836
+ },
+ "fc_test_stats": {
+  "mean_rev": 49303.88483333334,
+  "total": 2958233.0900000003,
+  "mean_orders": 93.8,
+  "rev_per_order": 525.6277700781806
+ },
+ "fc_top2": [
+  {
+   "date": "2011-11-14",
+   "dow": "Monday",
+   "actual": 111958.62,
+   "forecast": 50759.17987799579,
+   "error": -61199.440122004205,
+   "orders": 107
+  },
+  {
+   "date": "2011-10-05",
+   "dow": "Wednesday",
+   "actual": 75111.56999999999,
+   "forecast": 40019.929013860805,
+   "error": -35091.64098613919,
+   "orders": 96
+  }
+ ],
+ "fc_bias": {
+  "mean": -4110.897174291315,
+  "under_share": 0.5833333333333334
+ },
+ "fc_weekly_mape": {
+  "model": 20.936465561679814,
+  "naive": 28.50911785843755
+ },
+ "fc_total": {
+  "actual": 2958233.0900000003,
+  "model": 2711579.2595425216,
+  "naive": 2970086.0300000003
+ },
+ "fc_weeks": {
+  "total_gap_pct": -8.33787679852769,
+  "full_weeks_mean_gap_pct": -7.553378536364543,
+  "peak_min": -13.411528977528322,
+  "peak_max": -16.93384757174509,
+  "weeks": [
+   {
+    "week": "2011-09-26",
+    "days": 1,
+    "actual": 11520.61,
+    "forecast": 26039.30331503615,
+    "gap": 126.02365078790228
+   },
+   {
+    "week": "2011-10-03",
+    "days": 6,
+    "actual": 301565.42,
+    "forecast": 258376.64102136958,
+    "gap": -14.321528966627012
+   },
+   {
+    "week": "2011-10-10",
+    "days": 6,
+    "actual": 207345.61,
+    "forecast": 232632.32266098974,
+    "gap": 12.19544154370558
+   },
+   {
+    "week": "2011-10-17",
+    "days": 6,
+    "actual": 263103.75,
+    "forecast": 231735.79905539978,
+    "gap": -11.922274366899073
+   },
+   {
+    "week": "2011-10-24",
+    "days": 6,
+    "actual": 237399.09,
+    "forecast": 230821.00952009886,
+    "gap": -2.7708954065077243
+   },
+   {
+    "week": "2011-10-31",
+    "days": 6,
+    "actual": 287017.92000000004,
+    "forecast": 238414.74292360677,
+    "gap": -16.93384757174509
+   },
+   {
+    "week": "2011-11-07",
+    "days": 6,
+    "actual": 345524.69,
+    "forecast": 295011.9780852709,
+    "gap": -14.619132402587235
+   },
+   {
+    "week": "2011-11-14",
+    "days": 6,
+    "actual": 378849.78,
+    "forecast": 328040.2319739977,
+    "gap": -13.411528977528322
+   },
+   {
+    "week": "2011-11-21",
+    "days": 6,
+    "actual": 306886.92,
+    "forecast": 304468.78609272704,
+    "gap": -0.7879560025800207
+   },
+   {
+    "week": "2011-11-28",
+    "days": 6,
+    "actual": 318902.86,
+    "forecast": 301654.4098782215,
+    "gap": -5.408684676511986
+   },
+   {
+    "week": "2011-12-05",
+    "days": 5,
+    "actual": 300116.44,
+    "forecast": 264384.03501580306,
+    "gap": -11.906180475883605
+   }
+  ]
+ },
+ "cl_balance": {
+  "0": 1315,
+  "1": 1409
+ },
+ "cl_split": {
+  "train": 2179,
+  "test": 545,
+  "train_pos": 0.5172097292335934,
+  "test_pos": 0.5174311926605505
+ },
+ "cl_grid": {
+  "best": {
+   "max_depth": 4,
+   "min_samples_leaf": 50
+  },
+  "cv_f1": 0.681451508356498,
+  "init_depth": 30,
+  "init_leaves": 726,
+  "sel_depth": 4,
+  "sel_leaves": 15
+ },
+ "cl_metrics": {
+  "Initial tree|Train": {
+   "Accuracy": 1.0,
+   "Precision": 1.0,
+   "Recall": 1.0,
+   "F1": 1.0,
+   "Precision0": 1.0,
+   "Recall0": 1.0
+  },
+  "Initial tree|Test": {
+   "Accuracy": 0.618348623853211,
+   "Precision": 0.6241610738255033,
+   "Recall": 0.6595744680851063,
+   "F1": 0.6413793103448275,
+   "Precision0": 0.611336032388664,
+   "Recall0": 0.5741444866920152
+  },
+  "Selected tree|Train": {
+   "Accuracy": 0.7021569527306104,
+   "Precision": 0.7237827715355806,
+   "Recall": 0.6858917480035492,
+   "F1": 0.7043280182232347,
+   "Precision0": 0.6813681368136814,
+   "Recall0": 0.7195817490494296
+  },
+  "Selected tree|Test": {
+   "Accuracy": 0.7155963302752294,
+   "Precision": 0.7591836734693878,
+   "Recall": 0.6595744680851063,
+   "F1": 0.7058823529411765,
+   "Precision0": 0.68,
+   "Recall0": 0.7756653992395437
+  }
+ },
+ "cl_cm": {
+  "Initial tree": [
+   [
+    151,
+    112
+   ],
+   [
+    96,
+    186
+   ]
+  ],
+  "Selected tree": [
+   [
+    204,
+    59
+   ],
+   [
+    96,
+    186
+   ]
+  ]
+ },
+ "cl_rules": [
+  {
+   "Leaf": 28,
+   "Rule": "TotalOrders > 3.50 AND TotalSpent > 4,077.57",
+   "TrainCustomers": 79,
+   "TrainRepurchase": 1.0,
+   "TestCustomers": 9,
+   "TestRepurchase": 1.0,
+   "Predicted": 1
+  },
+  {
+   "Leaf": 27,
+   "Rule": "TotalOrders > 3.50 AND 2,182.20 < TotalSpent <= 4,077.57",
+   "TrainCustomers": 88,
+   "TrainRepurchase": 0.9318181818181818,
+   "TestCustomers": 29,
+   "TestRepurchase": 0.896551724137931,
+   "Predicted": 1
+  },
+  {
+   "Leaf": 25,
+   "Rule": "TotalOrders > 4.50 AND 685.93 < TotalSpent <= 2,182.20",
+   "TrainCustomers": 130,
+   "TrainRepurchase": 0.8769230769230769,
+   "TestCustomers": 29,
+   "TestRepurchase": 0.9310344827586207,
+   "Predicted": 1
+  },
+  {
+   "Leaf": 24,
+   "Rule": "3.50 < TotalOrders <= 4.50 AND 685.93 < TotalSpent <= 2,182.20",
+   "TrainCustomers": 91,
+   "TrainRepurchase": 0.7802197802197802,
+   "TestCustomers": 23,
+   "TestRepurchase": 0.8260869565217391,
+   "Predicted": 1
+  },
+  {
+   "Leaf": 20,
+   "Rule": "RecencyDays <= 93.50 AND 1.50 < TotalOrders <= 3.50 AND TotalSpent > 685.93",
+   "TrainCustomers": 323,
+   "TrainRepurchase": 0.6811145510835913,
+   "TestCustomers": 78,
+   "TestRepurchase": 0.8076923076923077,
+   "Predicted": 1
+  },
+  {
+   "Leaf": 12,
+   "Rule": "RecencyDays <= 93.50 AND TotalOrders > 1.50 AND 275.60 < TotalSpent <= 685.93",
+   "TrainCustomers": 299,
+   "TrainRepurchase": 0.5919732441471572,
+   "TestCustomers": 66,
+   "TestRepurchase": 0.5757575757575758,
+   "Predicted": 1
+  },
+  {
+   "Leaf": 19,
+   "Rule": "RecencyDays <= 93.50 AND TotalOrders <= 1.50 AND TotalSpent > 685.93",
+   "TrainCustomers": 58,
+   "TrainRepurchase": 0.5172413793103449,
+   "TestCustomers": 11,
+   "TestRepurchase": 0.36363636363636365,
+   "Predicted": 1
+  },
+  {
+   "Leaf": 14,
+   "Rule": "RecencyDays > 93.50 AND 275.60 < TotalSpent <= 319.60",
+   "TrainCustomers": 52,
+   "TrainRepurchase": 0.46153846153846156,
+   "TestCustomers": 8,
+   "TestRepurchase": 0.25,
+   "Predicted": 0
+  },
+  {
+   "Leaf": 11,
+   "Rule": "RecencyDays <= 93.50 AND TotalOrders <= 1.50 AND 275.60 < TotalSpent <= 685.93",
+   "TrainCustomers": 206,
+   "TrainRepurchase": 0.4368932038834951,
+   "TestCustomers": 71,
+   "TestRepurchase": 0.38028169014084506,
+   "Predicted": 0
+  },
+  {
+   "Leaf": 21,
+   "Rule": "RecencyDays > 93.50 AND TotalOrders <= 3.50 AND TotalSpent > 685.93",
+   "TrainCustomers": 69,
+   "TrainRepurchase": 0.4057971014492754,
+   "TestCustomers": 21,
+   "TestRepurchase": 0.6190476190476191,
+   "Predicted": 0
+  },
+  {
+   "Leaf": 5,
+   "Rule": "44.50 < RecencyDays <= 100.50 AND TotalSpent <= 275.60",
+   "TrainCustomers": 195,
+   "TrainRepurchase": 0.35384615384615387,
+   "TestCustomers": 61,
+   "TestRepurchase": 0.26229508196721313,
+   "Predicted": 0
+  },
+  {
+   "Leaf": 15,
+   "Rule": "RecencyDays > 93.50 AND 319.60 < TotalSpent <= 685.93",
+   "TrainCustomers": 153,
+   "TrainRepurchase": 0.28104575163398693,
+   "TestCustomers": 32,
+   "TestRepurchase": 0.34375,
+   "Predicted": 0
+  },
+  {
+   "Leaf": 4,
+   "Rule": "RecencyDays <= 44.50 AND TotalSpent <= 275.60",
+   "TrainCustomers": 178,
+   "TrainRepurchase": 0.25280898876404495,
+   "TestCustomers": 50,
+   "TestRepurchase": 0.3,
+   "Predicted": 0
+  },
+  {
+   "Leaf": 7,
+   "Rule": "100.50 < RecencyDays <= 157.50 AND TotalSpent <= 275.60",
+   "TrainCustomers": 199,
+   "TrainRepurchase": 0.23115577889447236,
+   "TestCustomers": 46,
+   "TestRepurchase": 0.2391304347826087,
+   "Predicted": 0
+  },
+  {
+   "Leaf": 8,
+   "Rule": "RecencyDays > 157.50 AND TotalSpent <= 275.60",
+   "TrainCustomers": 59,
+   "TrainRepurchase": 0.15254237288135594,
+   "TestCustomers": 11,
+   "TestRepurchase": 0.09090909090909091,
+   "Predicted": 0
+  }
+ ],
+ "cl_rule_loyal": {
+  "Leaf": 25,
+  "Rule": "TotalOrders > 4.50 AND 685.93 < TotalSpent <= 2,182.20",
+  "TrainCustomers": 130,
+  "TrainRepurchase": 0.8769230769230769,
+  "TestCustomers": 29,
+  "TestRepurchase": 0.9310344827586207,
+  "Predicted": 1
+ },
+ "cl_rule_react": {
+  "Leaf": 7,
+  "Rule": "100.50 < RecencyDays <= 157.50 AND TotalSpent <= 275.60",
+  "TrainCustomers": 199,
+  "TrainRepurchase": 0.23115577889447236,
+  "TestCustomers": 46,
+  "TestRepurchase": 0.2391304347826087,
+  "Predicted": 0
+ },
+ "cl_base_rate": 0.5172097292335934,
+ "cl_audience": {
+  "test_n": 545,
+  "tp": 186,
+  "fp": 59,
+  "fn": 96,
+  "tn": 204,
+  "pred1": 245,
+  "pred0": 300,
+  "actual0": 263,
+  "actual1": 282,
+  "precision1": 0.7591836734693878,
+  "recall1": 0.6595744680851063,
+  "precision0": 0.68,
+  "recall0": 0.7756653992395437
+ },
+ "cl_population_pred": {
+  "pred1": 1313,
+  "pred0": 1411,
+  "loyal_rule": 159,
+  "react_rule": 245
+ },
+ "cu_excluded": {
+  "n": 41,
+  "pct": 0.6975161619598503,
+  "amount": -31587.08,
+  "zero": 21,
+  "neg": 20,
+  "kept": 5837,
+  "total": 5878,
+  "kept_amount_share": 100.19318085078442
+ },
+ "cu_k": {
+  "2": {
+   "inertia": 8444.330667296257,
+   "sil": 0.43435523303290535,
+   "smallest": 2450,
+   "sizes": [
+    3387,
+    2450
+   ]
+  },
+  "3": {
+   "inertia": 6258.1669738564615,
+   "sil": 0.3447880932801884,
+   "smallest": 1281,
+   "sizes": [
+    2218,
+    2338,
+    1281
+   ]
+  },
+  "4": {
+   "inertia": 4864.482601732685,
+   "sil": 0.36404997399709166,
+   "smallest": 1159,
+   "sizes": [
+    1523,
+    1929,
+    1226,
+    1159
+   ]
+  },
+  "5": {
+   "inertia": 4102.352838862017,
+   "sil": 0.3359680752624492,
+   "smallest": 564,
+   "sizes": [
+    1336,
+    1638,
+    1087,
+    564,
+    1212
+   ]
+  },
+  "6": {
+   "inertia": 3535.839721077685,
+   "sil": 0.33778042293027644,
+   "smallest": 504,
+   "sizes": [
+    758,
+    972,
+    504,
+    1335,
+    1458,
+    810
+   ]
+  },
+  "7": {
+   "inertia": 3189.575172231381,
+   "sil": 0.3090182764495172,
+   "smallest": 324,
+   "sizes": [
+    724,
+    1219,
+    324,
+    786,
+    1024,
+    987,
+    773
+   ]
+  },
+  "8": {
+   "inertia": 2887.301268863378,
+   "sil": 0.31055652715206294,
+   "smallest": 339,
+   "sizes": [
+    829,
+    736,
+    975,
+    1141,
+    825,
+    339,
+    565,
+    427
+   ]
+  }
+ },
+ "cu_profile": {
+  "Champions": {
+   "Customers": 1226.0,
+   "Recency_med": 17.0,
+   "Frequency_med": 13.0,
+   "Monetary_med": 4735.695,
+   "Monetary_total": 12202717.6,
+   "% customers": 21.003940380332363,
+   "% net revenue": 74.48571489936081
+  },
+  "Cooling regulars": {
+   "Customers": 1523.0,
+   "Recency_med": 188.0,
+   "Frequency_med": 4.0,
+   "Monetary_med": 1336.09,
+   "Monetary_total": 2640106.37,
+   "% customers": 26.09217063560048,
+   "% net revenue": 16.11527995860581
+  },
+  "Recent occasional buyers": {
+   "Customers": 1159.0,
+   "Recency_med": 24.0,
+   "Frequency_med": 3.0,
+   "Monetary_med": 725.07,
+   "Monetary_total": 955294.93,
+   "% customers": 19.85609045742676,
+   "% net revenue": 5.831145826138339
+  },
+  "Lapsed one-time buyers": {
+   "Customers": 1929.0,
+   "Recency_med": 401.0,
+   "Frequency_med": 1.0,
+   "Monetary_med": 254.0,
+   "Monetary_total": 584509.12,
+   "% customers": 33.0477985266404,
+   "% net revenue": 3.567859315895033
+  }
+ },
+ "cu_order": [
+  "Champions",
+  "Cooling regulars",
+  "Recent occasional buyers",
+  "Lapsed one-time buyers"
+ ],
+ "cu_k2": {
+  "Champions": [
+   0,
+   1226
+  ],
+  "Cooling regulars": [
+   885,
+   638
+  ],
+  "Recent occasional buyers": [
+   573,
+   586
+  ],
+  "Lapsed one-time buyers": [
+   1929,
+   0
+  ]
+ },
+ "a32": {
+  "pareto_n": 1384,
+  "pareto_pct": 23.710810347781393,
+  "risk_counts": {
+   "Low": 5204,
+   "High": 334,
+   "Medium": 299
+  },
+  "seg": {
+   "Champions": {
+    "credited_pct": 3.591510141819604,
+    "high": 65,
+    "any_credit": 0.8132137030995106
+   },
+   "Cooling regulars": {
+    "credited_pct": 6.314596348494223,
+    "high": 108,
+    "any_credit": 0.525279054497702
+   },
+   "Recent occasional buyers": {
+    "credited_pct": 2.1005994244132387,
+    "high": 40,
+    "any_credit": 0.31061259706643657
+   },
+   "Lapsed one-time buyers": {
+    "credited_pct": 2.904073091636621,
+    "high": 121,
+    "any_credit": 0.16226023846552617
+   }
+  },
+  "champ_hi": {
+   "n": 65,
+   "net": 767023.2000000001,
+   "credits": 199019.60000000003,
+   "pct_net": 4.68193014615002
+  },
+  "top80_hi": {
+   "n": 75,
+   "net": 861106.54
+  },
+  "mae_gain": 37.62908869090456,
+  "criterion_met": true,
+  "total_credited_pct": 3.931925744523185
+ }
+}
