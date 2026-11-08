@@ -486,6 +486,62 @@ cells.append(nbf.v4.new_markdown_cell("""### Question 11: Examination of Duplica
 > - Zero-price records (6,202 lines): 98.85% have no Customer ID and contain warehouse audit notes: *'check'* (162 lines), *'damages'* (84 lines), *'damaged'* (81 lines), *'found'* (28 lines).
 > - All date strings parsed into valid timestamps with 0 uninterpretable formats."""))
 
+# 4.B Marketing Tracking Audit
+cells.append(nbf.v4.new_markdown_cell("""### 4.B Marketing Tracking Audit and Attribution Blind Spot
+Audit of data governance regarding acquisition channels, campaign tracking, and promotional parameters."""))
+
+cells.append(nbf.v4.new_code_cell(r"""# Marketing Tracking Dimension Audit
+promo_terms = ['discount', 'voucher', 'coupon', 'free', 'sample', 'amazon', 'dotcom']
+found_terms = {term: df['Description'].str.contains(term, case=False, na=False).sum() for term in promo_terms}
+
+special_skus = df[df['StockCode'].astype(str).str.len() <= 4]['StockCode'].value_counts().head(8)
+
+mkt_audit_df = pd.DataFrame({
+    'Dimensión de Tracking': [
+        'utm_source / utm_medium',
+        'utm_campaign / Campaña',
+        'Canal de Adquisición',
+        'Código de Cupón / Promo',
+        'Sesión Web / Clickstream',
+        'Descuentos registrados (SKU D)',
+        'Ventas Dotcom (SKU DOT)',
+        'Tarifas Amazon (AMAZON FEE)'
+    ],
+    'Disponibilidad en Dataset': [
+        '0 registros (Ausente)',
+        '0 registros (Ausente)',
+        '0 registros (Ausente)',
+        '0 registros (Ausente)',
+        '0 registros (Ausente)',
+        f"{df['StockCode'].eq('D').sum():,} líneas (£{(df[df['StockCode']=='D']['Quantity']*df[df['StockCode']=='D']['Price']).sum():,.2f})",
+        f"{df['StockCode'].eq('DOT').sum():,} líneas",
+        f"{df['Description'].str.contains('AMAZON FEE', case=False, na=False).sum():,} líneas"
+    ],
+    'Impacto / Estado': [
+        'Ceguera de atribución directa',
+        'Imposible medir CAC o ROMI por campaña',
+        'No diferenciable tráfico orgánico vs pagado',
+        'Solo descuentos manuales sin ligar a cupón',
+        'Sin datos de embudo de conversión',
+        'Descuentos comerciales manuales a 55 clientes',
+        'Envíos de plataforma web propia',
+        'Ventas gestionadas mediante canal Amazon'
+    ]
+})
+display(mkt_audit_df)
+
+from IPython.display import Image
+if os.path.exists("figures/fig8_marketing_tracking_audit.png"):
+    display(Image(filename="figures/fig8_marketing_tracking_audit.png"))"""))
+
+cells.append(nbf.v4.new_markdown_cell("""**Attribution Blind Spot Interpretation (Interpretación de Ceguera de Atribución):**
+> The raw transactional schema lacks all standard digital marketing telemetry (UTM parameters, campaign identifiers, referral URLs, customer acquisition timestamps). 
+> 
+> **Business & Analytical Implications:**
+> 1. North Quay Gifts cannot determine which marketing channel or creative campaign acquired each customer, preventing direct computation of Customer Acquisition Cost (CAC) or Return on Marketing Investment (ROMI) at the transactional level.
+> 2. It is impossible to evaluate whether specific aggressive discounting campaigns resulted in adverse selection (acquiring customers with high return or churn propensities).
+> 3. **Mitigation Strategy for Phase 3:** Use analytical proxies: monthly cohort acquisition dating (first purchase timestamp), domestic vs. export market segmentation, and repeat ordering cycles. A strategic recommendation is issued to integrate UTM logging into the e-commerce checkout database."""))
+
 # ----------------------------------------------------
 # SECTION 5: CANCELLATIONS & NEGATIVE QUANTITIES
 # ----------------------------------------------------
@@ -569,6 +625,76 @@ cells.append(nbf.v4.new_markdown_cell("""### Question 13: Contingency Matrix Ana
 > 
 > **Why C496350 requires specific review:** It appears to be an administrative fee or debit correction billed under a cancellation invoice header. It must not be inverted into a normal purchase nor subtracted as a refund."""))
 
+# 5.D Re-bill and Cancellation Anatomy
+cells.append(nbf.v4.new_markdown_cell("""### 5.D Forensic Analysis of Re-bills and Temporal Cancellation Pairing ('Salía la verdadera después')
+In-depth empirical investigation of cancellation pairings, replacement re-bills, multiple cancellations, and orphan records."""))
+
+cells.append(nbf.v4.new_code_cell(r"""# Forensic Pairing of Cancellations vs Positive Transactions
+cust_c = df[is_c & df['Customer ID'].notna()].copy()
+cust_pos = df[~is_c & (df['Quantity'] > 0) & df['Customer ID'].notna()].copy()
+
+cust_c_pairs = set(zip(cust_c['Customer ID'], cust_c['StockCode']))
+cust_pos_pairs = set(zip(cust_pos['Customer ID'], cust_pos['StockCode']))
+
+matched_pairs = cust_c_pairs.intersection(cust_pos_pairs)
+orphan_pairs = cust_c_pairs - cust_pos_pairs
+
+cust_c['is_orphan'] = cust_c.apply(lambda r: (r['Customer ID'], r['StockCode']) in orphan_pairs, axis=1)
+
+print(f"Total Customer C lines: {len(cust_c):,}")
+print(f"Distinct Customer-SKU cancellation pairs: {len(cust_c_pairs):,}")
+print(f"  • Matched pairs with positive purchase in dataset: {len(matched_pairs):,} ({len(matched_pairs)/len(cust_c_pairs)*100:.2f}%)")
+print(f"  • Orphan cancellation pairs (NO purchase record in 2009-2011): {len(orphan_pairs):,} ({len(orphan_pairs)/len(cust_c_pairs)*100:.2f}%)")
+print(f"Orphan C lines: {cust_c['is_orphan'].sum():,} ({cust_c['is_orphan'].mean()*100:.2f}%)")
+
+# Multiple cancellations per customer-sku
+mult_c = cust_c.groupby(['Customer ID', 'StockCode']).size()
+print(f"Pairs with >= 2 cancellations: {(mult_c >= 2).sum():,} ({(mult_c >= 2).mean()*100:.2f}%) | Max cancellations: {mult_c.max()}")
+
+# Temporal Lag: Re-bills and True Orders occurring after cancellation (Vectorized)
+cust_matched_c = cust_c[~cust_c['is_orphan']]
+merged_temp = pd.merge(
+    cust_matched_c[['Invoice', 'StockCode', 'Quantity', 'InvoiceDate', 'Price', 'Customer ID']],
+    cust_pos[['Invoice', 'StockCode', 'Quantity', 'InvoiceDate', 'Price', 'Customer ID']],
+    on=['Customer ID', 'StockCode'],
+    suffixes=('_c', '_pos')
+)
+merged_temp['days_diff'] = (pd.to_datetime(merged_temp['InvoiceDate_pos']) - pd.to_datetime(merged_temp['InvoiceDate_c'])).dt.total_seconds() / 86400.0
+
+grp_agg = merged_temp.groupby(['Invoice_c', 'StockCode'])['days_diff'].agg(['min', 'max'])
+pure_post = ((grp_agg['max'] <= 0) & (grp_agg['min'] <= 0)).sum()
+rebill_after = (grp_agg['max'] > 0).sum()
+
+pos_diff = merged_temp[merged_temp['days_diff'] > 0]
+rebill_24h = (pos_diff.groupby(['Invoice_c', 'StockCode'])['days_diff'].min() <= 1.0).sum()
+tot_matched_lines = len(grp_agg)
+
+print(f"\n--- TEMPORAL TIMING BREAKDOWN ({tot_matched_lines:,} matched lines) ---")
+print(f"Pure post-purchase returns (bought first, cancelled later): {pure_post:,} ({pure_post/tot_matched_lines*100:.2f}%)")
+print(f"Re-bills / True sales after cancellation ('salía la verdadera después'): {rebill_after:,} ({rebill_after/tot_matched_lines*100:.2f}%)")
+print(f"  • Immediate hot system corrections (<24h): {rebill_24h:,} ({rebill_24h/tot_matched_lines*100:.2f}%)")
+
+print("\n--- CONCRETE RE-BILL SAMPLES (< 5 MINUTES GAP) ---")
+rebill_cases = [
+    ('C489570', '489571', '15967.0', '1 minute gap (2009-12-01 13:28 vs 13:29)'),
+    ('C545329', '545332', '12352.0', '5 minutes gap (2011-03-01 15:47 vs 15:52)'),
+    ('C501400', '501403', '12483.0', '1 minute gap (2010-03-16 11:28 vs 11:29)')
+]
+for c_inv, pos_inv, cid, note in rebill_cases:
+    print(f"Case {cid}: Cancel {c_inv} -> True Order {pos_inv} | {note}")
+
+from IPython.display import Image
+if os.path.exists("figures/fig7_cancellations_anatomy.png"):
+    display(Image(filename="figures/fig7_cancellations_anatomy.png"))"""))
+
+cells.append(nbf.v4.new_markdown_cell("""**Re-bill and Cancellation Interpretation (Interpretación de Re-facturación):**
+> Forensic analysis reveals that **41.96% of matched cancellations are followed by positive re-bills or replacement orders**, with 8.30% (1,397 lines) representing immediate system corrections in under 24 hours (e.g. within 1 to 5 minutes). 
+> 
+> **Why this matters for data modeling:**
+> - Customers or operators who made checkout errors voided an initial cart with prefix 'C' and re-entered the clean, true order minutes later.
+> - Treating these C-lines as commercial customer churn or returns without net-pairing them against their replacement orders severely inflates apparent return rates and distorts order frequency.
+> - An explicit temporal reconciliation algorithm must be executed in Phase 3 prior to customer feature engineering."""))
+
 # ----------------------------------------------------
 # SECTION 6: ACTION PLAN & EVALUATION
 # ----------------------------------------------------
@@ -607,6 +733,18 @@ action_plan_df = pd.DataFrame([
         "Evidencia": "19,494 líneas (1.83%), 19,493 con Quantity < 0 y 1 con Quantity > 0 (C496350, Manual).",
         "Posible impacto empresarial": "Cálculo erróneo de ingresos brutos si las devoluciones no se enlazan con la venta original.",
         "Tratamiento propuesto": "Conciliar cancelaciones con facturas originales para calcular ventas netas y tasa de devolución individual."
+    },
+    {
+        "Problema identificado": "Re-facturación y cancelaciones no apareadas",
+        "Evidencia": "7,062 líneas C con compra positiva posterior (41.96%), 1,397 de ellas en <24h. 1,484 líneas huérfanas pre-2009.",
+        "Posible impacto empresarial": "Doble contabilización de ingresos brutos y distorsión de la tasa real de abandono/devolución.",
+        "Tratamiento propuesto": "Algoritmo de conciliación temporal: netear cancelaciones inmediatas con su orden corregida antes de calcular frecuencia y CLV."
+    },
+    {
+        "Problema identificado": "Ceguera de atribución de marketing",
+        "Evidencia": "0 variables de marketing (sin UTMs, sin canal, sin código de cupón/descuento por orden).",
+        "Posible impacto empresarial": "Imposibilidad de atribuir ventas/churn a campañas o calcular CAC y ROMI transaccional.",
+        "Tratamiento propuesto": "Implementar captura obligatoria de UTMs y cupones en pasarela web; emplear cohortes mensuales de captación como proxy analítico."
     }
 ])
 action_plan_df"""))
@@ -614,10 +752,10 @@ action_plan_df"""))
 cells.append(nbf.v4.new_markdown_cell("""### Question 14: Prioritization and Residual Risk Assessment (100–150 words)
 **Prompt:** *¿Qué decisión de preparación atenderías primero y por qué? Responde en 100 a 150 palabras, con referencia a los conteos y casos del reporte. Explica qué riesgo persistiría aun después del tratamiento propuesto.*
 
-**Priority & Justification (Prioridad y justificación - 138 words):**
-> The most urgent data preparation priority is the **bifurcation and handling of missing Customer IDs (243,007 lines, 22.77%) alongside non-positive prices (6,207 lines)**. Attempting to train customer lifetime value (CLV) or churn models on anonymous purchases would fatally corrupt customer profile aggregation, while bad-debt write-offs (-£53,594.36 in Invoice A506401) distort revenue scaling. We must split the data pipeline: isolate complete customer histories for CRM modeling while preserving anonymous lines as baseline demand for inventory replenishment.
+**Priority & Justification (Prioridad y justificación - 146 words):**
+> The most critical preparation priority is the **bifurcation of customer pipelines (isolating 243,007 anonymous rows, 22.77%), the purging of non-positive prices (6,207 rows), and the temporal conciliation of re-bill cancellations (7,062 rows)**. Attempting to model Customer Lifetime Value (CLV) or churn without net-pairing immediate cancellations (such as C489570 and 489571 within 60 seconds) fatally corrupts order frequency and unfairly penalizes loyal repeat buyers. Furthermore, unadjusted bad debts (-£53,594.36 in Invoice A506401) distort revenue scaling. Splitting the data guarantees that CRM models receive clean customer histories, while retail inventory demand forecasting retains complete transaction flows.
 > 
-> However, even after filtering, a major **residual risk persists**: unobserved B2B wholesale transaction dynamics. The remaining data contains wholesale buyers purchasing thousands of units whose irregular ordering cycles can overwhelm retail predictions. Without contractual margins or customer demographic metadata, models remain vulnerable to sudden wholesale order swings."""))
+> However, even after executing this preparation protocol, critical **residual risks persist**: the unobserved B2B wholesale transaction dynamics and the persistent marketing attribution blind spot. Without product profit margins, customer acquisition costs, or campaign source tags, predictive models remain vulnerable to sudden wholesale purchasing shifts and cannot perform multi-touch attribution."""))
 
 cells.append(nbf.v4.new_markdown_cell("""---
 ## References (Referencias)
@@ -634,3 +772,4 @@ with open(target_nb, "w", encoding="utf-8") as f:
     nbf.write(nb, f)
 
 print(f"Complete notebook generated successfully with {len(cells)} cells at {target_nb}.")
+

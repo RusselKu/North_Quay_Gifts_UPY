@@ -292,6 +292,18 @@ The ledger contains five records with negative prices ($\texttt{Price} < 0$), al
 
 Furthermore, 6,202 records feature $\texttt{Price} = \pounds 0.00$. Of these, 6,131 (98.85\%) lack a customer ID and contain internal logistical memos: \textit{``check''} (162 lines), \textit{``damages''} (84 lines), \textit{``damaged''} (81 lines), and \textit{``found''} (28 lines). Only 71 zero-price rows contain identified customer IDs, representing promotional samples or customer compensation items.
 
+\subsection{Marketing Attribution Blind Spot and Tracking Deficit}
+A critical governance vulnerability revealed by schema auditing is the total absence of marketing tracking mechanisms. The dataset comprises strictly eight operational attributes, with zero fields dedicated to campaign provenance, acquisition channel, UTM tracking ($\texttt{utm\_source}$, $\texttt{utm\_medium}$, $\texttt{utm\_campaign}$), voucher/coupon identifiers, or web clickstream telemetry (Figure~\ref{fig:marketing_audit}).
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=\columnwidth]{figures/fig8_marketing_tracking_audit.png}
+\caption{Governance Audit: Transactional Schema Dimensions vs. Marketing Tracking Blind Spot and Available Analytical Proxies.}
+\label{fig:marketing_audit}
+\end{figure}
+
+This data deficit generates a severe commercial limitation: North Quay Gifts operates under complete \textit{Attribution Blindness}. It is methodologically impossible to calculate Customer Acquisition Cost (CAC) or Return on Marketing Investment (ROMI) at the individual transaction or customer level, or to ascertain whether specific promotional campaigns drive adverse selection by attracting buyers with elevated return propensities. While isolated operational memos exist---such as 177 lines with StockCode \texttt{D} (Discounts totaling $-\pounds 13,484.54$), 1,446 lines of \texttt{DOTCOM POSTAGE}, and 39 \texttt{AMAZON FEE} lines---they confirm multi-channel e-commerce activity without providing structured attribution. In Phase 3, this is mitigated via analytical proxies: monthly cohort acquisition dating, geographic segmentation, and inter-purchase timing.
+
 \section{Forensic Investigation of Cancellations and Negative Quantities}
 
 \subsection{Taxonomy of Invoice Prefix `C'}
@@ -351,6 +363,25 @@ Without Prefix `C' & 3,457 & 0 & 1,044,420 \\
 
 The empirical evidence demonstrates that prefix `C' lines do not match negative quantities: 15.06\% of all negative records (3,457 of 22,950) originate outside the cancellation series. Treating all negative quantities as a single commercial construct would introduce systematic bias into churn and return propensity algorithms.
 
+\subsection{Empirical Anatomy of Re-bills and Temporal Cancellation Pairing}
+Forensic investigation of the 14,208 Customer-SKU pairs possessing both positive purchases and negative cancellations disproves the naive hypothesis that cancellations represent simple post-purchase physical returns. Instead, we identify four distinct transactional archetypes (Figure~\ref{fig:cancellations_anatomy}):
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=\columnwidth]{figures/fig7_cancellations_anatomy.png}
+\caption{Empirical Breakdown of Negative Transactions, Cancellation Archetypes, and Re-bill Replacement Timing Windows.}
+\label{fig:cancellations_anatomy}
+\end{figure}
+
+\begin{enumerate}
+    \item \textbf{Pure Post-Purchase Returns (58.04\%, 9,769 lines):} The conventional reverse logistics flow, where an initial purchase is followed days or weeks later by a credit memo return.
+    \item \textbf{Re-bills and Hot System Corrections (41.96\%, 7,062 lines):} Instances where a cancellation invoice precedes or coexists with a subsequent positive order for the identical SKU. Remarkably, 1,397 lines (8.30\%) occur within 24 hours, often within 1 to 5 minutes (e.g., cancellation \texttt{C489570} at 13:28 followed by clean invoice \texttt{489571} at 13:29; \texttt{C545329} at 15:47 followed by \texttt{545332} at 15:52). These capture point-of-sale checkout adjustments, cart corrections, and payment clearing retries where the ``true'' commercial transaction was finalized shortly thereafter.
+    \item \textbf{Orphan and Left-Censored Cancellations (7.92\%, 1,484 lines):} Exactly 1,285 Customer-SKU pairs show cancellation lines with zero preceding positive purchase in the 2009--2011 dataset. These stem from left-censoring (items purchased prior to December 1, 2009) or anonymous in-store cash purchases later returned at customer service under a registered account ID.
+    \item \textbf{Multiple Cancellation Churn (12.86\%, 1,993 pairs):} Nearly 2,000 Customer-SKU pairs exhibit multiple cancellation transactions (up to 61 repeated cancellation events), reflecting staged wholesale returns or automated gateway re-attempts.
+\end{enumerate}
+
+\textbf{Analytical Risk of Double Counting:} If preparation pipelines compute gross revenues without conciliating re-bill pairs, transaction frequency, gross sales, and customer churn metrics are severely inflated.
+
 \section{Strategic Data Preparation Action Plan}
 
 \subsection{Action Plan and Treatment Matrix}
@@ -374,15 +405,19 @@ Non-Positive Prices ($\texttt{Price} \le 0$) & 5 negative lines (`A' prefix, Bad
 \midrule
 Commercial Cancellations (Prefix `C') & 19,494 lines (1.83\%); 19,493 $Q < 0$ and 1 anomalous $Q > 0$ (\texttt{C496350}, Manual). & Overstates gross customer revenue if returns are unlinked to original purchase events. & Conciliate returns with original purchase invoices to calculate true net revenue and individual customer return propensities. \\
 \midrule
+Re-bills and Temporal Discrepancies & 7,062 lines C with positive purchase after (41.96\%), 1,397 occurring in $<24$h. & Double counts transaction volume and distorts real customer churn rates. & Temporal conciliation algorithm: net out immediate cancellations with corrected re-bills before frequency and CLV aggregation. \\
+\midrule
+Marketing Tracking Blind Spot & 0 marketing tracking attributes (zero UTMs, channel, or promotional voucher IDs). & Inability to compute CAC, ROMI, or evaluate campaign-driven return/churn rates. & Mandate checkout web event tagging for production; leverage monthly acquisition cohort dating and geographic proxies. \\
+\midrule
 Non-Product Administrative SKUs & 1,983 \texttt{POST}, 214 \texttt{D}, 939 \texttt{M}, 110 \texttt{BANK CHARGES} entries. & Skews product affinity rules, market basket cross-selling, and SKU demand forecasting. & Isolate fee and freight surcharges into dedicated fee vectors; exclude from product recommendation matrices. \\
 \bottomrule
 \end{tabularx}
 \end{table*}
 
 \subsection{Preparation Priority and Residual Risk Assessment}
-The most urgent preparation priority is the \textbf{bifurcation of customer records and the exclusion of non-positive prices}. Attempting to train customer lifetime value (CLV) or churn models on anonymous purchases (22.77\% of lines) corrupts customer-level behavioral profiles, while bad-debt accounting write-offs ($-\pounds 53,594.36$ in Invoice \texttt{A506401}) distort revenue scaling. Splitting the pipeline ensures that CRM models receive clean customer histories, while retail inventory demand forecasting retains the complete transaction stream.
+The most urgent preparation priority is the \textbf{bifurcation of customer records, the exclusion of non-positive prices, and the temporal conciliation of re-bill cancellations}. Attempting to train customer lifetime value (CLV) or churn models without net-pairing immediate cancellations (such as \texttt{C489570} and \texttt{489571} within 60 seconds) fatally biases order frequency and penalizes repeat buyers. Furthermore, bad-debt accounting write-offs ($-\pounds 53,594.36$ in Invoice \texttt{A506401}) corrupt revenue scaling. Splitting the pipeline ensures that CRM models receive clean customer histories, while retail inventory demand forecasting retains the complete transaction stream.
 
-However, even after executing this preparation protocol, a critical \textbf{residual risk persists}: unobserved B2B wholesale transaction dynamics. The remaining customer dataset contains wholesale buyers purchasing hundreds of units whose irregular ordering cycles can overwhelm predictive retail models. Without product profit margins, customer acquisition costs, or demographic data, predictive models remain vulnerable to sudden wholesale purchasing shifts.
+However, even after executing this preparation protocol, critical \textbf{residual risks persist}: the unobserved B2B wholesale transaction dynamics and the persistent marketing attribution blind spot. Without product profit margins, customer acquisition costs, or campaign source tags, predictive models remain vulnerable to sudden wholesale purchasing shifts and cannot perform multi-touch attribution.
 
 \section{Conclusion}
 This investigation completes the CRISP-DM Phase 2 (Data Understanding) requirements for North Quay Gifts. Through rigorous empirical exploration of 1,067,371 transaction records, we have established:

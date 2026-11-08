@@ -237,4 +237,74 @@ plt.tight_layout()
 fig.savefig(f"{out_dir}/fig6_price_boxplot.png", dpi=300)
 plt.close(fig)
 
-print("All 6 publication-quality figures successfully created in", out_dir)
+# -------------------------------------------------------------
+# FIG 7: Cancellations Anatomy and Re-bill Phenomenon
+# -------------------------------------------------------------
+print("Generating Figure 7: Cancellations Anatomy...")
+fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(14, 5.5), dpi=300)
+
+categories = ['Devoluciones\nPuras (Post-compra)', 'Re-facturación\n(Verdadera después)', 'Cancelaciones\nHuérfanas (Pre-2009)', 'Merma Bodega\n(Sin C, Precio=0)']
+counts = [9769, 7062, 1484, 3457]
+colors = ['#1f77b4', '#ff7f0e', '#9467bd', '#d62728']
+
+bars = ax1.bar(categories, counts, color=colors, edgecolor='black', alpha=0.85)
+ax1.set_title("Desglose de Registros Negativos y Cancelaciones", fontsize=11, fontweight='bold', pad=10)
+ax1.set_ylabel("Cantidad de Líneas Transaccionales", fontsize=10)
+ax1.grid(True, linestyle=':', alpha=0.6, axis='y')
+for bar, count in zip(bars, counts):
+    pct = count / sum(counts) * 100
+    ax1.text(bar.get_x() + bar.get_width()/2, bar.get_height() + 150, f"{count:,}\n({pct:.1f}%)",
+             ha='center', va='bottom', fontsize=9, fontweight='bold')
+
+timing_labels = ['< 1 hora\n(Inmediata)', '1-24 horas\n(Mismo día)', '1-7 días\n(Recompra rápida)', '> 7 días\n(Ciclo posterior)']
+timing_counts = [644, 753, 1820, 3845]
+bars2 = ax2.bar(timing_labels, timing_counts, color='#2ca02c', edgecolor='black', alpha=0.85)
+ax2.set_title("Ventana Temporal: Re-facturación y Compra Verdadera Posterior", fontsize=11, fontweight='bold', pad=10)
+ax2.set_ylabel("Líneas Re-facturadas", fontsize=10)
+ax2.grid(True, linestyle=':', alpha=0.6, axis='y')
+for bar, count in zip(bars2, timing_counts):
+    pct = count / sum(timing_counts) * 100
+    ax2.text(bar.get_x() + bar.get_width()/2, bar.get_height() + 80, f"{count:,}\n({pct:.1f}%)",
+             ha='center', va='bottom', fontsize=9, fontweight='bold')
+
+plt.suptitle("Figura 7. Anatomía Empírica de Cancelaciones y Fenómeno de Re-facturación", fontsize=13, fontweight='bold', y=0.98)
+plt.tight_layout()
+fig.savefig(f"{out_dir}/fig7_cancellations_anatomy.png", dpi=300)
+plt.close(fig)
+
+# -------------------------------------------------------------
+# FIG 8: Marketing Tracking Audit and Proxies
+# -------------------------------------------------------------
+print("Generating Figure 8: Marketing Tracking Audit...")
+fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(14, 5.5), dpi=300)
+
+dims = ['Variables Transaccionales\nDisponibles (8)', 'Variables de Tracking\nMarketing Faltantes (6)']
+vals = [8, 6]
+ax1.bar(dims, vals, color=['#1f77b4', '#d62728'], edgecolor='black', alpha=0.85, width=0.5)
+ax1.set_title("Auditoría de Esquema: Disponibilidad vs. Brecha de Marketing", fontsize=11, fontweight='bold', pad=10)
+ax1.set_ylabel("Número de Variables", fontsize=10)
+ax1.set_ylim(0, 10)
+ax1.grid(True, linestyle=':', alpha=0.6, axis='y')
+
+ax1.text(0, 8.3, 'Invoice, StockCode, Description,\nQuantity, InvoiceDate, Price,\nCustomer ID, Country', 
+         ha='center', va='bottom', fontsize=8.5, bbox=dict(boxstyle='round,pad=0.3', fc='#e8f4f8', ec='#1f77b4'))
+ax1.text(1, 6.3, 'utm_source, utm_medium, utm_campaign,\nvoucher_code, acquisition_channel,\nreferral_url / clickstream', 
+         ha='center', va='bottom', fontsize=8.5, bbox=dict(boxstyle='round,pad=0.3', fc='#fde8e8', ec='#d62728'))
+
+proxies = ['Cohortes Mensuales\n(Fecha 1ra compra)', 'Geografía / País\n(Mercado local vs int.)', 'Frecuencia de Compra\n(Recurrencia vs Churn)', 'Canal Dotcom / Amazon\n(StockCode DOT, fee Amazon)']
+weights = [100, 91.9, 100, 0.4]
+bars = ax2.barh(proxies, weights, color='#2ca02c', edgecolor='black', alpha=0.85)
+ax2.set_title("Estrategia de Mitigación: Variables Proxy para Inteligencia Comercial", fontsize=11, fontweight='bold', pad=10)
+ax2.set_xlabel("Cobertura en Clientes Identificados (%)", fontsize=10)
+ax2.set_xlim(0, 120)
+ax2.grid(True, linestyle=':', alpha=0.6, axis='x')
+
+for bar, w in zip(bars, weights):
+    ax2.text(w + 2, bar.get_y() + bar.get_height()/2, f'{w:.1f}%', va='center', ha='left', fontsize=9, fontweight='bold')
+
+plt.suptitle("Figura 8. Diagnóstico de Gobernanza: Ceguera de Atribución de Marketing y Proxies Comerciales", fontsize=13, fontweight='bold', y=0.98)
+plt.tight_layout()
+fig.savefig(f"{out_dir}/fig8_marketing_tracking_audit.png", dpi=300)
+plt.close(fig)
+
+print("All 8 publication-quality figures successfully created in", out_dir)

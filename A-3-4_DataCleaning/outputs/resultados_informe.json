@@ -187,7 +187,7 @@
     "InvoiceDate": "2009-12-01 13:14:00",
     "ReturnedUnits": "12",
     "NCandidates": "2",
-    "LinkedInvoice": "nan",
+    "LinkedInvoice": "<NA>",
     "LinkedInvoiceUnits": "<NA>",
     "PartialReturn": "False",
     "Status": "Ambiguous",
@@ -203,7 +203,7 @@
     "InvoiceDate": "2009-12-01 10:33:00",
     "ReturnedUnits": "12",
     "NCandidates": "0",
-    "LinkedInvoice": "nan",
+    "LinkedInvoice": "<NA>",
     "LinkedInvoiceUnits": "<NA>",
     "PartialReturn": "False",
     "Status": "Unreconciled",
@@ -219,12 +219,30 @@
     "InvoiceDate": "2009-12-02 14:45:00",
     "ReturnedUnits": "1",
     "NCandidates": "0",
-    "LinkedInvoice": "nan",
+    "LinkedInvoice": "<NA>",
     "LinkedInvoiceUnits": "<NA>",
     "PartialReturn": "False",
     "Status": "Unreconciled",
     "Reason": "No identified customer"
    }
+  }
+ },
+ "conciliacion_bidireccional": {
+  "total_c_con_cliente": 18390,
+  "apareadas_dedup": 16916,
+  "post_compra_pura": 9765,
+  "refacturacion_posterior_total": 7151,
+  "hotfix_24h": 1499,
+  "hotfix_1h": 1181,
+  "reinv_1_7d": 640,
+  "reinv_gt7d": 5012,
+  "huerfanas_dedup": 1474,
+  "huerfanas_raw": 1484,
+  "desglose_2060": {
+   "2. Hot-Fix Re-Invoicing (< 24h Forward Match)": 168,
+   "3. Short-Term Re-Invoicing (1-7d Forward Match)": 87,
+   "4. Subsequent Cycle Repurchase (> 7d Forward Match)": 331,
+   "5. Left-Censored Orphan (Pre-Dec 2009 / Counter)": 1474
   }
  },
  "diarios": {
@@ -236,7 +254,7 @@
    "unid_d": 11205148,
    "unid_t": 11205148,
    "rev_d": 20476260.448,
-   "rev_t": 20476260.448,
+   "rev_t": 20476260.447999995,
    "ini": "2009-12-01",
    "fin": "2011-12-09",
    "ceros": 0
@@ -325,7 +343,7 @@
      "cid": 15498,
      "hora": "2011-12-09 10:28:00",
      "estado": "Unreconciled",
-     "link": "nan"
+     "link": "<NA>"
     },
     {
      "inv": "C581568",
@@ -337,7 +355,7 @@
      "cid": 15311,
      "hora": "2011-12-09 11:57:00",
      "estado": "Ambiguous",
-     "link": "nan"
+     "link": "<NA>"
     }
    ]
   },
@@ -409,7 +427,7 @@
      "cid": null,
      "hora": "2010-12-07 15:49:00",
      "estado": "Unreconciled",
-     "link": "nan"
+     "link": "<NA>"
     },
     {
      "inv": "C537630",
@@ -421,7 +439,7 @@
      "cid": null,
      "hora": "2010-12-07 15:04:00",
      "estado": "Unreconciled",
-     "link": "nan"
+     "link": "<NA>"
     },
     {
      "inv": "C537644",
@@ -433,7 +451,7 @@
      "cid": null,
      "hora": "2010-12-07 15:34:00",
      "estado": "Unreconciled",
-     "link": "nan"
+     "link": "<NA>"
     }
    ]
   }
@@ -821,7 +839,7 @@
    "importe": -741525.78,
    "pct": 50.70524613453806
   },
-  "pct_credito_sobre_A": -7.142047170741283,
+  "pct_credito_sobre_A": -7.142047170741284,
   "por_tipo": {
    "Merchandise": {
     "Reconciled": -529604.79,
@@ -856,6 +874,37 @@
    "Units spread over several invoices (not forced)": -6265.57
   }
  },
+ "bifurcacion_y_proxies": {
+  "crm_lineas": 797815,
+  "crm_ingresos": 16289991.29,
+  "anon_lineas": 229201,
+  "anon_ingresos": 2723844.98,
+  "anon_dotcom_lineas": 206506,
+  "is_uk_lineas": 942328,
+  "export_lineas": 84688,
+  "dotcom_order_lineas": 211603,
+  "amazon_order_lineas": 36,
+  "discount_user_clientes": 55,
+  "discount_user_lineas": 56637,
+  "cohortes_unicas": 27,
+  "deuda_incobrable_excluidas": 5,
+  "deuda_incobrable_monto_excluido": -158676.14,
+  "merma_bodega_raw": 3457,
+  "merma_bodega_dedup": 3393
+ },
+ "auditoria_forense": {
+  "dup_solapamiento_hojas": 22523,
+  "dup_intrafactura": 11812,
+  "pares_sku_partidos_misma_factura": 11109,
+  "grupos_c_partidos": 61,
+  "colisiones_mismo_minuto": 82,
+  "ambiguos_resolubles_lifo": 5393,
+  "ambiguos_lote_exacto": 1794,
+  "skus_desdoblados_mayus_minus": 172,
+  "lineas_no_mercantiles_rutaB": 5761,
+  "clientes_multipais": 13,
+  "lineas_pais_indeterminado": 813
+ },
  "export": {
   "ruta": "B",
   "filas_tp": 1027016,
@@ -877,6 +926,33 @@
    "Purchase": 1007913,
    "Credit": 19103
   },
-  "registro": 65478
+  "registro": 65478,
+  "auditoria_cols": [
+   "SourceRow",
+   "Invoice",
+   "CustomerID",
+   "StockCode",
+   "Description",
+   "Price",
+   "InvoiceDate",
+   "ReturnedUnits",
+   "NCandidates",
+   "LinkedInvoice",
+   "LinkedInvoiceClose",
+   "LinkedInvoiceUnits",
+   "PartialReturn",
+   "Status",
+   "Reason",
+   "FirstPurchaseDate",
+   "LastPurchaseDate",
+   "TotalPurchaseLines",
+   "ForwardInvoice",
+   "ForwardInvoiceDate",
+   "ForwardInvoiceUnits",
+   "ForwardInvoicePrice",
+   "ForwardGapHours",
+   "TemporalArchetype",
+   "NettedHotFixFlag"
+  ]
  }
 }

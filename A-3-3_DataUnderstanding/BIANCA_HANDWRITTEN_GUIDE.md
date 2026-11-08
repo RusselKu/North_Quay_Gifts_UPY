@@ -259,6 +259,14 @@ Fill the situations table on Page 5:
 
 ---
 
+### 4.B: Marketing Tracking Audit (Auditoría de Trazabilidad y Variables de Marketing)
+**Section / Topic to Note in Deliverable:**
+- **Zero Native Marketing Variables:** The dataset contains strictly 8 columns. Exactly `0` variables exist for UTM tags (`utm_source`, `utm_medium`, `utm_campaign`), acquisition channels (Organic, Paid Search, Social, Affiliate), customer acquisition dates, promotional coupon codes per basket, or web session clickstream logs.
+- **Attribution Blind Spot (Ceguera de Atribución):** It is impossible to calculate Customer Acquisition Cost (CAC) or Return on Marketing Investment (ROMI) at the customer or transactional level, or to trace if specific discount campaigns attracted buyers with high return rates.
+- **Indirect Signals & Mitigation:** 177 lines with `StockCode D` (Discounts totaling -£13,484.54 across 55 clients), 1,446 lines of `DOTCOM POSTAGE`, and 39 lines of `AMAZON FEE`. In Phase 3, we mitigate this gap via analytical proxies: monthly acquisition cohorts (first transaction date), domestic vs. export market split, and purchase velocity.
+
+---
+
 ## 5. Investigation of Cancellations & Negative Quantities
 
 ### 5.A: Invoices with Prefix 'C' (Facturas con Prefijo C)
@@ -318,10 +326,21 @@ Fill the 2×3 table on Page 6. **Grand Total must equal 1,067,371 lines**:
 
 ---
 
+### 5.D: Re-bill & Cancellation Anatomy (Anatomía de Cancelaciones y 'Salía la verdadera después')
+**Key Empirical Results to Note in Report:**
+- **Matched Customer-SKU Cancellation Pairs:** 14,208 pairs have both purchases and cancellations in 2009–2011.
+- **Pure Post-Purchase Returns:** 58.04% (9,769 lines) — standard customer return occurring after purchase.
+- **Re-bills and Hot Corrections ('Salía la verdadera después'):** 41.96% (7,062 lines) — cancellation preceded or coexisted with a positive purchase. Exactly 8.30% (1,397 lines) occurred within 24 hours, including 644 within 1 hour (e.g. C489570 at 13:28 cancelled cart items and clean invoice 489571 was issued at 13:29, 1 minute later; C545329 cancelled at 15:47 and 545332 re-billed at 15:52).
+- **Multiple Cancellation Pairs:** 1,993 pairs (12.86%) experienced $\ge 2$ cancellations (up to 61 repeated cancellations for one pair).
+- **Orphan Cancellations (Left-Censored):** 1,484 lines (7.92%, 1,285 pairs) with NO prior purchase in dataset (bought before Dec 2009 or walk-in cash buyers returning with receipt).
+- **Double Counting Risk:** Unpaired naive aggregation inflates gross revenues, order frequencies, and customer return rates.
+
+---
+
 ## 6. Action Plan & Evaluation (Plan de Acción y Evaluación)
 
 ### Table 8: Strategic Action Plan Matrix (Plan de Acción)
-Fill the comprehensive table on Page 7:
+Fill the comprehensive table on Page 7 (7 rows):
 
 | Identified Problem (Problema) | Evidence (Evidencia) | Potential Business Impact (Impacto empresarial) | Proposed Treatment (Tratamiento propuesto) |
 | :--- | :--- | :--- | :--- |
@@ -330,16 +349,18 @@ Fill the comprehensive table on Page 7:
 | **Negative Quantities without 'C'** | 3,457 lines (0.32%), 100% have Price=0 and Customer ID=NaN (damages, check, thrown away). | Conflating inventory shrinkage with customer returns distorts return rate models. | Segregate entirely from sales tables into an internal Warehouse Shrinkage / Operational Loss dataset. |
 | **Non-Positive Prices (Price <= 0)** | 5 lines with Price < 0 (StockCode 'B', 'Adjust bad debt', -£53,594.36); 6,202 lines with Price = 0. | Catastrophic distortion of gross margin and revenue; negative bad debts erase millions. | Exclude bad debt rows ('A' invoices) permanently from commercial sales. Audit zero-price lines for promotional gifts vs data omissions. |
 | **Commercial Cancellations ('C')** | 19,494 lines (1.83%), 19,493 with Quantity < 0 and 1 with Quantity > 0 (C496350). | Skews gross revenue calculation if returns are not matched to original purchases. | Conciliate cancellation lines with original sales invoices to construct net customer spend and historical return rates. |
+| **Re-bills and Temporal Discrepancies** | 7,062 C lines followed by positive purchase (41.96%), 1,397 occurring in <24h. 1,484 orphan lines pre-2009. | Double counts revenue and order frequency while artificially inflating churn rates. | **Temporal Netting Algorithm:** Net out immediate cancellations with corrected replacement invoices before RFM/CLV calculation. |
+| **Marketing Tracking Blind Spot** | 0 marketing attributes (no UTM tags, no acquisition channel, no promo voucher IDs). | Inability to compute CAC or ROMI, or identify if promo campaigns attract return-prone buyers. | Implement checkout web event tagging in e-commerce database; leverage monthly acquisition cohort dating and geographic proxies in Phase 3. |
 
 ---
 
 ### Question 14 (Pregunta 14) — Priority and Justification (100–150 words)
 **Prompt:** *¿Qué decisión de preparación atenderías primero y por qué? Responde en 100 a 150 palabras, con referencia a los conteos y casos del reporte. Explica qué riesgo persistiría aun después del tratamiento propuesto.*
 
-**Exact Text to Write (Prioridad y justificación - 138 words):**
-> "The most urgent data preparation priority is the **bifurcation and handling of missing Customer IDs (243,007 lines, 22.77%) alongside non-positive prices (6,207 lines)**. Attempting to train customer lifetime value (CLV) or churn models on anonymous purchases would fatally corrupt customer profile aggregation, while bad-debt write-offs (-£53,594.36 in Invoice A506401) distort revenue scaling. We must split the data pipeline: isolate complete customer histories for CRM modeling while preserving anonymous lines as baseline demand for inventory replenishment.
+**Exact Text to Write (Prioridad y justificación - 146 words):**
+> "The most critical preparation priority is the **bifurcation of customer pipelines (isolating 243,007 anonymous rows, 22.77%), the purging of non-positive prices (6,207 rows), and the temporal conciliation of re-bill cancellations (7,062 rows)**. Attempting to model Customer Lifetime Value (CLV) or churn without net-pairing immediate cancellations (such as C489570 and 489571 within 60 seconds) fatally corrupts order frequency and unfairly penalizes loyal repeat buyers. Furthermore, unadjusted bad debts (-£53,594.36 in Invoice A506401) distort revenue scaling. Splitting the data guarantees that CRM models receive clean customer histories, while retail inventory demand forecasting retains complete transaction flows.
 > 
-> However, even after filtering, a major **residual risk persists**: unobserved B2B wholesale transaction dynamics. The remaining data contains wholesale buyers purchasing thousands of units whose irregular ordering cycles can overwhelm retail predictions. Without contractual margins or customer demographic metadata, models remain vulnerable to sudden wholesale order swings."
+> However, even after executing this preparation protocol, critical **residual risks persist**: the unobserved B2B wholesale transaction dynamics and the persistent marketing attribution blind spot. Without product profit margins, customer acquisition costs, or campaign source tags, predictive models remain vulnerable to sudden wholesale purchasing shifts and cannot perform multi-touch attribution."
 
 ---
 

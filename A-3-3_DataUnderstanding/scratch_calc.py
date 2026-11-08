@@ -1,216 +1,97 @@
 import pandas as pd
 import numpy as np
-import scipy.stats as stats
-import json
 
-print("Loading dataset...")
-df = pd.read_csv("Data/online_retail_II.csv")
+print("Loading data...")
+df = pd.read_csv('Data/online_retail_II.csv')
+df['InvoiceDate'] = pd.to_datetime(df['InvoiceDate'])
+df['Is_C'] = df['Invoice'].astype(str).str.startswith('C')
+df['LineTotal'] = df['Quantity'] * df['Price']
 
-total_rows = len(df)
-total_cols = df.shape[1]
+print(f"Total rows: {len(df):,}")
+c_rows = df[df['Is_C']].copy()
+print(f"Total C lines: {len(c_rows):,}")
+print(f"C lines with Customer ID: {c_rows['Customer ID'].notnull().sum():,} ({c_rows['Customer ID'].notnull().mean()*100:.2f}%)")
+print(f"C lines without Customer ID: {c_rows['Customer ID'].isnull().sum():,} ({c_rows['Customer ID'].isnull().mean()*100:.2f}%)")
 
-# Convert InvoiceDate
-df['InvoiceDateParsed'] = pd.to_datetime(df['InvoiceDate'])
-min_date = df['InvoiceDateParsed'].min()
-max_date = df['InvoiceDateParsed'].max()
+# Inspect C lines without Customer ID
+c_no_cust = c_rows[c_rows['Customer ID'].isnull()]
+print(f"Distinct Invoices in C without Customer ID: {c_no_cust['Invoice'].nunique():,}")
+print(f"Price distribution of C without Customer ID: min={c_no_cust['Price'].min()}, median={c_no_cust['Price'].median()}, max={c_no_cust['Price'].max()}")
+print("Sample descriptions of C without Customer ID:")
+print(c_no_cust['Description'].value_counts().head(10))
 
-distinct_invoices = df['Invoice'].nunique()
-distinct_customers = df['Customer ID'].dropna().nunique()
+# In c_rows with Customer ID:
+cust_c = c_rows[c_rows['Customer ID'].notnull()].copy()
+cust_pos = df[df['Customer ID'].notnull() & ~df['Is_C'] & (df['Quantity'] > 0)].copy()
 
-print(f"Total Rows: {total_rows}")
-print(f"Total Columns: {total_cols}")
-print(f"Min Date: {min_date}")
-print(f"Max Date: {max_date}")
-print(f"Distinct Invoices: {distinct_invoices}")
-print(f"Distinct Customers (Identified): {distinct_customers}")
+cust_c_pairs = set(zip(cust_c['Customer ID'], cust_c['StockCode']))
+cust_pos_pairs = set(zip(cust_pos['Customer ID'], cust_pos['StockCode']))
 
-# Multi-product invoice example
-inv_counts = df.groupby('Invoice').agg(
-    total_lines=('StockCode', 'count'),
-    distinct_stockcodes=('StockCode', 'nunique')
+matched_pairs = cust_c_pairs.intersection(cust_pos_pairs)
+orphan_pairs = cust_c_pairs - cust_pos_pairs
+
+print(f"\nDistinct Customer-SKU cancellation pairs: {len(cust_c_pairs):,}")
+print(f"Pairs with matching positive purchase: {len(matched_pairs):,} ({len(matched_pairs)/len(cust_c_pairs)*100:.2f}%)")
+print(f"Orphan cancellation pairs (NO purchase record in window): {len(orphan_pairs):,} ({len(orphan_pairs)/len(cust_c_pairs)*100:.2f}%)")
+
+cust_c['is_orphan'] = cust_c.apply(lambda r: (r['Customer ID'], r['StockCode']) in orphan_pairs, axis=1)
+print(f"C lines that are orphan: {cust_c['is_orphan'].sum():,} ({cust_c['is_orphan'].mean()*100:.2f}%)")
+print(f"C lines that have matching purchases: {(~cust_c['is_orphan']).sum():,} ({(~cust_c['is_orphan']).mean()*100:.2f}%)")
+
+# Now let's analyze the matched pairs:
+# For matched pairs, how many times does the cancellation happen:
+# A) AFTER the positive purchase (standard return / post-purchase cancellation)
+# B) BEFORE the positive purchase (re-bill / corrected re-entry where true order comes AFTER)
+# C) Both (customer has multiple positive and negative transactions)
+
+# Merge matched records
+cust_matched_c = cust_c[~cust_c['is_orphan']]
+merged = pd.merge(
+    cust_matched_c[['Invoice', 'StockCode', 'Quantity', 'InvoiceDate', 'Price', 'Customer ID']],
+    cust_pos[['Invoice', 'StockCode', 'Quantity', 'InvoiceDate', 'Price', 'Customer ID']],
+    on=['Customer ID', 'StockCode'],
+    suffixes=('_c', '_pos')
 )
-multi_item_diff = inv_counts[inv_counts['total_lines'] > inv_counts['distinct_stockcodes']].head(5)
-print("\nMulti-item invoices with duplicate stockcodes:")
-print(multi_item_diff)
+merged['days_diff'] = (merged['InvoiceDate_pos'] - merged['InvoiceDate_c']).dt.total_seconds() / 86400.0
 
-sample_inv = "489434"
-print(f"\nSample Invoice {sample_inv}:")
-sample_data = df[df['Invoice'] == sample_inv]
-print(f"Lines: {len(sample_data)}, Unique StockCodes: {sample_data['StockCode'].nunique()}")
+print("\n--- TEMPORAL TIMING OF CANCELLATIONS VS POSITIVE PURCHASES ---")
+# Let's inspect unique C lines:
+# Group by (Invoice_c, StockCode):
+grouped_c = merged.groupby(['Invoice_c', 'StockCode'])
+pure_post_return = 0
+has_rebill_after = 0 # pos date > c date
+immediate_correction = 0 # pos date > c date and within 24h
 
-# First and last month coverage
-df['YearMonth'] = df['InvoiceDateParsed'].dt.to_period('M')
-ym_counts = df.groupby('YearMonth').agg(
-    lines=('Invoice', 'count'),
-    first_day=('InvoiceDateParsed', lambda x: x.min().strftime('%Y-%m-%d %H:%M')),
-    last_day=('InvoiceDateParsed', lambda x: x.max().strftime('%Y-%m-%d %H:%M')),
-    days_present=('InvoiceDateParsed', lambda x: x.dt.day.nunique())
-)
-print("\nYearMonth coverage:")
-print(ym_counts.iloc[[0, 1, -2, -1]])
+for (inv, sc), grp in grouped_c:
+    pos_dates = grp['InvoiceDate_pos']
+    c_date = grp['InvoiceDate_c'].iloc[0]
+    
+    # Are there positive purchases after the cancellation?
+    after = grp[grp['days_diff'] > 0]
+    before = grp[grp['days_diff'] <= 0]
+    
+    if len(after) > 0 and len(before) == 0:
+        # Only pos after cancellation! The true sale came AFTER the cancellation!
+        has_rebill_after += 1
+        if (after['days_diff'] <= 1.0).any():
+            immediate_correction += 1
+    elif len(before) > 0 and len(after) == 0:
+        pure_post_return += 1
+    else:
+        # Has purchases both before and after
+        has_rebill_after += 1
+        if (after['days_diff'] <= 1.0).any():
+            immediate_correction += 1
 
-# Section 2: Descriptive Statistics
-q_s = df['Quantity']
-p_s = df['Price']
+total_c_lines_matched = grouped_c.ngroups
+print(f"Total matched C line items: {total_c_lines_matched:,}")
+print(f"Pure post-purchase returns (bought first, cancelled later): {pure_post_return:,} ({pure_post_return/total_c_lines_matched*100:.2f}%)")
+print(f"Cancellations followed by positive re-bill/purchase ('salía la verdadera después'): {has_rebill_after:,} ({has_rebill_after/total_c_lines_matched*100:.2f}%)")
+print(f"  Of which immediate system correction/re-bill within 24h: {immediate_correction:,} ({immediate_correction/total_c_lines_matched*100:.2f}%)")
 
-desc_stats = {
-    'Quantity': {
-        'count': int(q_s.count()),
-        'mean': float(q_s.mean()),
-        'median': float(q_s.median()),
-        'std': float(q_s.std()),
-        'min': float(q_s.min()),
-        'q1': float(q_s.quantile(0.25)),
-        'q3': float(q_s.quantile(0.75)),
-        'max': float(q_s.max()),
-        'skew': float(q_s.skew()),
-        'kurt': float(q_s.kurt()) # Fisher's excess kurtosis (default in pandas)
-    },
-    'Price': {
-        'count': int(p_s.count()),
-        'mean': float(p_s.mean()),
-        'median': float(p_s.median()),
-        'std': float(p_s.std()),
-        'min': float(p_s.min()),
-        'q1': float(p_s.quantile(0.25)),
-        'q3': float(p_s.quantile(0.75)),
-        'max': float(p_s.max()),
-        'skew': float(p_s.skew()),
-        'kurt': float(p_s.kurt())
-    }
-}
-print("\nDescriptive statistics:")
-print(pd.DataFrame(desc_stats))
-
-# Categorical summary: Country and StockCode
-cat_stats = {
-    'Country': {
-        'count': int(df['Country'].count()),
-        'nunique': int(df['Country'].nunique()),
-        'top': str(df['Country'].mode()[0]),
-        'top_freq': int(df['Country'].value_counts().iloc[0]),
-        'nulls': int(df['Country'].isna().sum())
-    },
-    'StockCode': {
-        'count': int(df['StockCode'].count()),
-        'nunique': int(df['StockCode'].nunique()),
-        'top': str(df['StockCode'].mode()[0]),
-        'top_freq': int(df['StockCode'].value_counts().iloc[0]),
-        'nulls': int(df['StockCode'].isna().sum())
-    }
-}
-print("\nCategorical summary:")
-print(pd.DataFrame(cat_stats))
-
-# Section 3: Univariate Analysis
-top3_country = df['Country'].value_counts().head(3)
-top3_stockcode = df['StockCode'].value_counts().head(3)
-
-print("\nTop 3 Countries:")
-for cat, count in top3_country.items():
-    print(f"{cat}: {count} lines ({count / total_rows * 100:.2f}%)")
-
-print("\nTop 3 StockCodes:")
-for cat, count in top3_stockcode.items():
-    print(f"{cat}: {count} lines ({count / total_rows * 100:.2f}%)")
-
-top10_country = df['Country'].value_counts().head(10)
-top10_stock = df['StockCode'].value_counts().head(10)
-print(f"Top 10 Countries coverage: {top10_country.sum()} lines ({top10_country.sum()/total_rows*100:.2f}%)")
-print(f"Top 10 StockCodes coverage: {top10_stock.sum()} lines ({top10_stock.sum()/total_rows*100:.2f}%)")
-
-# Section 4: Data Quality Diagnostics
-nulls_df = pd.DataFrame({
-    'Nulls': df.isna().sum(),
-    'Percent': df.isna().sum() / total_rows * 100
-})
-print("\nNull values:")
-print(nulls_df)
-
-dups = df.duplicated().sum()
-q_neg = (df['Quantity'] < 0).sum()
-q_zero = (df['Quantity'] == 0).sum()
-p_neg = (df['Price'] < 0).sum()
-p_zero = (df['Price'] == 0).sum()
-
-situations = pd.DataFrame({
-    'Situation': ['Duplicados exactos adicionales', 'Quantity < 0', 'Quantity = 0', 'Price < 0', 'Price = 0'],
-    'Lines': [dups, q_neg, q_zero, p_neg, p_zero],
-    'Percent': [dups/total_rows*100, q_neg/total_rows*100, q_zero/total_rows*100, p_neg/total_rows*100, p_zero/total_rows*100]
-})
-print("\nSituations:")
-print(situations)
-
-# Section 5: Cancellations and Negatives
-is_c = df['Invoice'].astype(str).str.startswith('C')
-c_lines = is_c.sum()
-c_invs = df[is_c]['Invoice'].nunique()
-c_q_neg = (is_c & (df['Quantity'] < 0)).sum()
-c_q_zero = (is_c & (df['Quantity'] == 0)).sum()
-c_q_pos = (is_c & (df['Quantity'] > 0)).sum()
-
-print("\nCancellations (C prefix):")
-print(f"Lines with C: {c_lines}")
-print(f"Distinct C Invoices: {c_invs}")
-print(f"C with Quantity < 0: {c_q_neg}")
-print(f"C with Quantity = 0: {c_q_zero}")
-print(f"C with Quantity > 0: {c_q_pos}")
-
-# Negative quantities without C
-no_c_q_neg = (~is_c & (df['Quantity'] < 0))
-no_c_lines = no_c_q_neg.sum()
-no_c_invs = df[no_c_q_neg]['Invoice'].nunique()
-print(f"\nNegative Quantities without C:")
-print(f"Lines: {no_c_lines}")
-print(f"Distinct Invoices: {no_c_invs}")
-
-# Contingency table
-ctab = pd.crosstab(is_c.map({True: 'Con C', False: 'Sin C'}), 
-                   pd.cut(df['Quantity'], bins=[-np.inf, -0.0001, 0.0001, np.inf], labels=['Quantity < 0', 'Quantity = 0', 'Quantity > 0']),
-                   margins=True)
-print("\nContingency Table:")
-print(ctab)
-
-# Inspect negative without C cases
-sample_no_c = df[no_c_q_neg].head(10)
-print("\nSample Negative without C:")
-print(sample_no_c[['Invoice', 'StockCode', 'Description', 'Quantity', 'Price', 'Customer ID', 'InvoiceDate']])
-
-# Check Price < 0 cases
-p_neg_cases = df[df['Price'] < 0]
-print("\nNegative Price cases:")
-print(p_neg_cases[['Invoice', 'StockCode', 'Description', 'Quantity', 'Price', 'Customer ID']])
-
-# Check Price == 0 cases
-p_zero_cases = df[df['Price'] == 0]
-print(f"\nPrice == 0 cases: {len(p_zero_cases)}")
-print("Price == 0 with Customer ID:", p_zero_cases['Customer ID'].notna().sum())
-print("Price == 0 without Customer ID:", p_zero_cases['Customer ID'].isna().sum())
-print("Top descriptions for Price == 0:")
-print(p_zero_cases['Description'].value_counts().head(10))
-
-# Save all exact calculations to JSON for reference
-output_dict = {
-    'total_rows': total_rows,
-    'total_cols': total_cols,
-    'min_date': str(min_date),
-    'max_date': str(max_date),
-    'distinct_invoices': distinct_invoices,
-    'distinct_customers': distinct_customers,
-    'desc_stats': desc_stats,
-    'cat_stats': cat_stats,
-    'top3_country': {k: {'lines': int(v), 'pct': float(v/total_rows*100)} for k, v in top3_country.items()},
-    'top3_stockcode': {k: {'lines': int(v), 'pct': float(v/total_rows*100)} for k, v in top3_stockcode.items()},
-    'situations': situations.to_dict(orient='records'),
-    'c_lines': int(c_lines),
-    'c_invs': int(c_invs),
-    'c_q_neg': int(c_q_neg),
-    'c_q_zero': int(c_q_zero),
-    'c_q_pos': int(c_q_pos),
-    'no_c_q_neg_lines': int(no_c_lines),
-    'no_c_q_neg_invs': int(no_c_invs)
-}
-
-with open("A-3-3_DataUnderstanding/computed_stats.json", "w") as f:
-    json.dump(output_dict, f, indent=4)
-print("\nSaved computed_stats.json successfully!")
+# Multiple cancellations for the same item:
+mult_c = cust_c.groupby(['Customer ID', 'StockCode']).size()
+print(f"\nCustomer-SKU pairs with exactly 1 cancellation: {(mult_c == 1).sum():,} ({(mult_c == 1).mean()*100:.2f}%)")
+print(f"Customer-SKU pairs with MULTIPLE cancellations (>=2): {(mult_c >= 2).sum():,} ({(mult_c >= 2).mean()*100:.2f}%)")
+print(f"Customer-SKU pairs with >= 5 cancellations: {(mult_c >= 5).sum():,}")
+print(f"Max cancellations for a single Customer-SKU pair: {mult_c.max():,}")

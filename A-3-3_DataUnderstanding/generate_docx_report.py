@@ -373,6 +373,27 @@ q11.add_run(
     "Otros hallazgos: partidas no mercantiles como POST (1,983 líneas), D (214), M (939), BANK CHARGES (110); 6,202 registros con Price = £0.00 con notas de auditoría de almacén ('check', 'damages', 'found'); 100% de fechas interpretables."
 )
 
+doc.add_paragraph()
+
+# 4.B Auditoría de Trazabilidad y Ausencia de Variables de Marketing
+doc.add_heading("4.B Auditoría de Trazabilidad y Ceguera de Atribución de Marketing", level=2)
+p_mkt = doc.add_paragraph(
+    "Auditoría de Gobernanza de Datos: El esquema transaccional de North Quay Gifts consta estrictamente de 8 atributos básicos (Invoice, StockCode, Description, Quantity, InvoiceDate, Price, Customer ID, Country). "
+    "Se constata una ausencia total (0 variables) de mecanismos de trazabilidad comercial y marketing: no existen etiquetas UTM (utm_source, utm_medium, utm_campaign), identificadores de canales de captación (Paid Search, Social Ads, Email Marketing, Orgánico, Afiliados), identificadores de cupones o promociones por pedido, ni registros de sesiones web (clickstream, referrer o embudos de navegación).\n\n"
+    "Impacto Analítico y Empresarial: Esta carencia genera una 'Ceguera de Atribución Comercial'. La empresa no puede determinar qué canal o campaña de marketing atrajo a cada comprador, imposibilitando el cálculo riguroso del Costo de Adquisición de Clientes (CAC) y del Retorno del Gasto en Marketing (ROMI) a nivel transaccional. "
+    "Asimismo, impide evaluar si ciertas ofertas agresivas o cupones de descuento atraen compradores con perfiles de alta tasa de devolución o deserción prematura (antiselección).\n\n"
+    "Señales Indirectas y Estrategia de Mitigación: El análisis de descripciones y códigos especiales revela indicios aislados como 177 líneas de descuento manual (StockCode 'D', acumulando -£13,484.54 entre 55 clientes), 1,446 líneas de 'DOTCOM POSTAGE' (ventas de comercio electrónico directo) y 39 líneas de comisiones de plataforma ('AMAZON FEE'). "
+    "Dado que no es metodológicamente válido inventar datos ausentes, en la fase de preparación se mitiga esta brecha mediante variables proxy empíricas: (1) fecha de primera compra para análisis de cohortes mensuales, (2) segmentación geográfica por mercado (UK vs. internacional), y (3) intervalos de recurrencia. A nivel de negocio, se emite la recomendación crítica de instrumentar la pasarela web de pago para registrar obligatoriamente los parámetros UTM y códigos promocionales por cada transacción generada."
+)
+p_mkt.paragraph_format.line_spacing = 1.15
+
+if os.path.exists("A-3-3_DataUnderstanding/figures/fig8_marketing_tracking_audit.png"):
+    doc.add_picture("A-3-3_DataUnderstanding/figures/fig8_marketing_tracking_audit.png", width=Inches(6.2))
+    cap_mkt = doc.add_paragraph("Figura 8. Diagnóstico de Gobernanza: Ceguera de Atribución de Marketing y Estrategia de Proxies Comerciales.")
+    cap_mkt.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    cap_mkt.runs[0].font.size = Pt(8.5)
+    cap_mkt.runs[0].font.italic = True
+
 # ----------------- SECTION 5 -----------------
 doc.add_heading("5. Investigación de Cancelaciones y Cantidades Negativas", level=1)
 
@@ -449,10 +470,32 @@ q13.add_run(
     "Esta anomalía requiere tratamiento específico: parece ser un cobro manual o cargo administrativo registrado bajo una serie de cancelación. No debe invertirse a venta ni restarse como reembolso."
 )
 
+doc.add_paragraph()
+
+# 5.D Anatomía Empírica de Cancelaciones y Re-facturación
+doc.add_heading("5.D Anatomía Empírica de Cancelaciones y Re-facturación ('Salía la Verdadera Después')", level=2)
+p_canc = doc.add_paragraph(
+    "Investigación Empírica del Patrón de Cancelaciones: El análisis de las 19,494 líneas con prefijo 'C' y de las 14,208 parejas Cliente-SKU con transacciones positivas y negativas demuestra que las cancelaciones no operan únicamente como devoluciones lineales post-compra, sino que encierran dinámicas complejas de corrección operativa y re-facturación:\n\n"
+    "1. Devoluciones Puras Post-Compra (58.04%, 9,769 líneas apareadas): El flujo comercial estándar donde un cliente adquiere un ítem y, días o semanas después, emite una nota de crédito o devolución física parcial o total.\n\n"
+    "2. Fenómeno de Re-facturación y Sustitución Temporal ('Salía la verdadera después', 41.96%, 7,062 líneas apareadas): En estas transacciones, la anulación con prefijo 'C' precede temporalmente o coexiste con una factura de venta positiva posterior que formaliza la verdadera transacción. Destaca un 8.30% (1,397 líneas) de 'correcciones en caliente' ocurridas en menos de 24 horas (muchas en intervalos de 1 a 5 minutos, e.g., anulación C489570 a las 13:28 y re-emisión limpia 489571 a las 13:29; anulación C545329 a las 15:47 y emisión corregida 545332 a las 15:52; anulación C501400 a las 11:28 y nueva factura 501403 a las 11:29). Esto evidencia clientes o cajeros corrigiendo errores tipográficos, modificaciones de ítems en el carrito o fallos técnicos de pago, donde el pedido previo fue anulado y la compra real quedó asentada minutos después.\n\n"
+    "3. Cancelaciones Múltiples Repetidas para una Misma Entidad (1,993 parejas Cliente-SKU, 12.86%): Se detectaron hasta 61 transacciones de cancelación para un mismo producto y cliente (e.g. clientes mayoristas devolviendo lotes de forma escalonada o sistemas automatizados reintentando cancelaciones de cobro de forma redundante).\n\n"
+    "4. Cancelaciones Huérfanas o Censuradas a la Izquierda (7.92%, 1,484 líneas C en 1,285 parejas): Líneas de cancelación emitidas a clientes identificados para las cuales no existe ninguna compra previa registrada dentro del horizonte 2009-2011. Corresponden a compras previas al 1 de diciembre de 2009 o compras anónimas de mostrador que posteriormente fueron devueltas en servicio al cliente presentando ticket y registrando al comprador.\n\n"
+    "5. Mermas Operativas de Bodega sin Prefijo C (3,457 líneas): 100% de ellas con Price = £0.00 y Customer ID nulo ('damages', 'check', 'smashed', 'thrown away'), las cuales representan pérdidas físicas de inventario y no comportamiento del cliente.\n\n"
+    "Riesgo de Doble Contabilización: Si en las etapas posteriores de preparación y modelado se agregan ciegamente las líneas brutas de venta sin conciliar los pares de re-facturación, se sobrestimarán tanto los ingresos brutos como la propensión al churn de los clientes, castigando injustamente a compradores leales cuyas transacciones simplemente sufrieron una corrección técnica de facturación."
+)
+p_canc.paragraph_format.line_spacing = 1.15
+
+if os.path.exists("A-3-3_DataUnderstanding/figures/fig7_cancellations_anatomy.png"):
+    doc.add_picture("A-3-3_DataUnderstanding/figures/fig7_cancellations_anatomy.png", width=Inches(6.2))
+    cap_canc = doc.add_paragraph("Figura 7. Desglose Empírico de Cancelaciones, Re-facturación ('Salía la Verdadera Después') y Ventanas Temporales.")
+    cap_canc.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    cap_canc.runs[0].font.size = Pt(8.5)
+    cap_canc.runs[0].font.italic = True
+
 # ----------------- SECTION 6 -----------------
 doc.add_heading("6. Plan de Acción y Evaluación", level=1)
 
-t11 = doc.add_table(rows=6, cols=4)
+t11 = doc.add_table(rows=8, cols=4)
 t11.rows[0].cells[0].paragraphs[0].add_run("Problema identificado")
 t11.rows[0].cells[1].paragraphs[0].add_run("Evidencia")
 t11.rows[0].cells[2].paragraphs[0].add_run("Posible impacto empresarial")
@@ -462,14 +505,16 @@ data_t11 = [
     ("Duplicados exactos adicionales", "34,335 líneas adicionales (3.22%). Ejemplo: Factura 489517 duplica 21491 a las 11:34:00.", "Sobrestimación artificial de ingresos (£), unidades vendidas y frecuencia de compra.", "Deduplicar con drop_duplicates(keep='first'). Auditar reintentos de pago HTTP en pasarela web."),
     ("Cantidades negativas sin prefijo C", "3,457 líneas (0.32%), 100% Price=0 y Customer ID nulo ('damages', 'check').", "Confusión entre merma física de bodega y cancelaciones de clientes.", "Segregación operativa: canalizar a un módulo de merma de almacén; excluir del historial de ventas a clientes."),
     ("Precios no positivos (Price <= 0)", "5 líneas con Price < 0 ('Adjust bad debt', hasta -£53,594.36); 6,202 con Price = 0.", "Distorsión masiva de ingresos y margen bruto por asientos de deuda incobrable.", "Excluir asientos contables (prefijo 'A') de ventas retail. Auditar registros en cero para muestras promocionales."),
-    ("Cancelaciones comerciales (Prefijo C)", "19,494 líneas (1.83%), 19,493 con Quantity < 0 y 1 con Quantity > 0 (C496350).", "Cálculo erróneo de ingresos brutos si no se concilian con la venta original.", "Conciliar cancelaciones con facturas de venta originales para calcular ingresos netos y tasa de devolución individual.")
+    ("Cancelaciones comerciales (Prefijo C)", "19,494 líneas (1.83%), 19,493 con Quantity < 0 y 1 con Quantity > 0 (C496350).", "Cálculo erróneo de ingresos brutos si no se concilian con la venta original.", "Conciliar cancelaciones con facturas de venta originales para calcular ingresos netos y tasa de devolución individual."),
+    ("Re-facturación y cancelaciones no apareadas", "7,062 líneas C con venta positiva posterior (41.96%), 1,397 de ellas en <24h.", "Doble contabilización de ventas y distorsión de la tasa real de abandono.", "Algoritmo de conciliación temporal: netear anulaciones inmediatas con su orden corregida antes de calcular frecuencia y CLV."),
+    ("Ceguera de atribución de marketing", "0 variables de marketing (sin UTMs, sin canal, sin código de cupón/descuento por orden).", "Imposibilidad de atribuir ventas/churn a campañas o calcular CAC y ROMI transaccional.", "Implementar captura obligatoria de UTMs y cupones en pasarela web; emplear cohortes mensuales de captación como proxy analítico.")
 ]
 for idx, (p, ev, imp, tr) in enumerate(data_t11, start=1):
     t11.rows[idx].cells[0].paragraphs[0].add_run(p)
     t11.rows[idx].cells[1].paragraphs[0].add_run(ev)
     t11.rows[idx].cells[2].paragraphs[0].add_run(imp)
     t11.rows[idx].cells[3].paragraphs[0].add_run(tr)
-format_table(t11, [1.6, 1.6, 1.6, 1.7])
+format_table(t11, [1.5, 1.5, 1.7, 1.8])
 
 doc.add_paragraph()
 
@@ -478,10 +523,10 @@ q14 = doc.add_paragraph()
 q14.add_run("14. Prioridad de Preparación y Riesgo Residual (100 a 150 palabras)\n").bold = True
 q14.add_run("Prioridad y justificación: ").bold = True
 q14.add_run(
-    "La prioridad inmediata es la bifurcación del pipeline respecto a los valores nulos en Customer ID (243,007 líneas, 22.77%) y la exclusión de precios no positivos (6,207 líneas). "
-    "Intentar entrenar modelos de Valor de Vida del Cliente (CLV) o riesgo de cancelación sobre registros anónimos corrompería fatalmente la agregación por cliente, mientras que las partidas contables de deuda incobrable (-£53,594.36 en A506401) distorsionan la escala monetaria. "
-    "Debemos separar la ingeniería de datos: clientes con ID completo alimentarán los algoritmos de CRM, mientras que las ventas anónimas se preservan como demanda base para reabastecimiento de inventario. "
-    "Riesgo residual persistente: la presencia de compradores mayoristas B2B en la cohorte identificada. Sus patrones masivos e irregulares de compra pueden sesgar los modelos de clientes minoristas, y sin datos de márgenes o costos de envío, las predicciones quedan expuestas a variaciones bruscas de pedidos al por mayor."
+    "La prioridad inmediata es la bifurcación del pipeline respecto a los nulos en Customer ID (243,007 líneas, 22.77%), la exclusión de partidas contables no comerciales (6,207 líneas con Price <= 0) y la conciliación temporal de re-facturaciones (7,062 líneas C con compras posteriores). "
+    "Intentar entrenar modelos de Valor de Vida del Cliente (CLV) o churn sin netear anulaciones inmediatas (como C489570 y 489571 en 1 minuto) sobrestimaría la frecuencia y penalizaría falsamente a clientes recurrentes. "
+    "Debemos separar los datos: clientes identificados y saneados alimentan los modelos predictivos de CRM, mientras que ventas anónimas se retienen para demanda agregada de bodega. "
+    "Riesgo residual persistente: la ceguera de atribución de marketing (0 variables UTM o canal) y la heterogeneidad de mayoristas B2B, cuyos pedidos masivos pueden distorsionar las estimaciones sin metadatos de costos logísticos o campañas de origen."
 )
 
 doc.add_heading("Referencias", level=1)
