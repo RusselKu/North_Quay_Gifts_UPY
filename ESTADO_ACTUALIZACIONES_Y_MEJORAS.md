@@ -1,91 +1,83 @@
-# Estado Global de Actualizaciones y Mejoras — North Quay Gifts (UPY)
+# Registro Maestro de Actualizaciones, Auditoría y Mejoras del Proyecto (CRISP-DM)
+**Proyecto:** North Quay Gifts (Online Retail II - UPY)
 
-**Proyecto:** North Quay Gifts — Ciencia de Datos / Minería de Datos (Metodología CRISP-DM)  
-**Institución:** Facultad de Ingeniería de Datos, Universidad Politécnica de Yucatán (UPY)  
-**Docente Asesor:** Didier Omar Gamboa Angulo  
-**Equipo de Trabajo:**
-- Russel Emmanuel Ku Aguilar (ID: 2309131)
-- Damian Nicolas Sanchez Novelo (ID: 2109134)
-- Jonathan Abisai Velasco Martín (ID: 2309060)
-- Ángel Rivaldo Canché Chuc (ID: 2309030)
-- Bianca Alexandra Acosta Castellanos (ID: 2309001)
+Este documento centraliza el estado de revisión, corrección de errores metodológicos, hallazgos de negocio y mejoras técnicas aplicadas a cada fase del proyecto para garantizar **trazabilidad al 100%** entre los cuadernos Jupyter (`.ipynb`) y los datos exportados en `outputs/`.
 
 ---
 
-## 1. Tablero de Control de Fases CRISP-DM
+## 1. Resumen de Estado por Carpeta / Fase
 
-| Fase | Identificador | Estado | Entregables Principales | Foco de Mejora y Actualización |
-| :--- | :--- | :---: | :--- | :--- |
-| **Entendimiento de Datos** | `A-3-3_DataUnderstanding` | **COMPLETADO (Auditado y Rehecho)** | • `NB2 Exploración de Datos - Online Retail II.ipynb`<br>• `CAMBIOS_Y_MEJORAS.md`<br>• `figures/fig7_cancellations_anatomy.png`<br>• `figures/fig8_marketing_tracking_audit.png` | Diagnóstico de ausencia de variables de marketing (ceguera de atribución) y deconstrucción empírica de cancelaciones complejas / re-facturaciones en caliente ("salía la verdadera después"). |
-| **Preparación y Procesamiento** | `A-3-4_DataCleaning` | **COMPLETADO (Auditado y Rehecho)** | • `NB3 Data Preparation and Processing - Online Retail II.ipynb`<br>• `CAMBIOS_Y_MEJORAS.md`<br>• `outputs/*.csv` & `resultados_informe.json`<br>• `figures/fig4_bidirectional_reconciliation.png`<br>• `figures/fig5_pipeline_bifurcation_and_proxies.png` | Conciliación temporal bidireccional (hacia atrás + hacia adelante `<24h`, `1-7d`, `>7d`); deconstrucción de las `2,060` líneas sin compra previa (`586` re-facturadas hacia adelante vs. `1,474` huérfanas pre-2009); bifurcación CRM (`797,815`) vs. Dotcom/Anónimos (`229,201`); aislamiento de mermas (`3,457` brutas / `3,393` dedup) y deuda serie `'A'`; proxies de marketing (`CohortMonth`, `IsUK`, `DOTCOM`, `AMAZON`, `DISCOUNT_USER`). |
-| **Construcción de Datasets** | `A-3-5_DataConstruction` | *Pendiente (Siguiente paso)* | • `NB4 Analytical Dataset...ipynb`<br>• `CAMBIOS_Y_MEJORAS.md` | Ingeniería de características sin sesgo de doble contabilización: uso de `NettedHotFixFlag` para depurar `Frequency` y tasa real de devolución en RFM; integración de cohortes de adquisición mensual (`CohortMonth`) y flags de canal (`DOTCOM` / `IsUK`). |
-| **Estrategia y Modelado** | `A-3-6_ModelingStrategy` | *Pendiente* | • `NB5 Modeling and Commercial Strategy...ipynb`<br>• `CAMBIOS_Y_MEJORAS.md` | Modelos de valor neto (CLV) y churn ajustados sin penalización injusta a clientes con re-facturaciones técnicas en caliente; estrategia comercial diferenciada por canal proxy y cohorte. |
-
----
-
-## 2. Detalle de Intervención: Fase A-3-3 (Data Understanding)
-
-### 2.1. Diagnóstico del Estado Previo
-La versión anterior presentaba debilidades conceptuales y analíticas que comprometían la calidad técnica del proyecto:
-1. **Omisión de la Dimensión de Marketing:** Se asumía tácitamente la optimización comercial o el retorno del gasto publicitario (ROMI) sin auditar si la base de datos permitía rastrear canales o campañas de captación.
-2. **Confusión en Cancelaciones y Devoluciones:** Se trataban indistintamente todas las líneas con prefijo `'C'` o con cantidades negativas como devoluciones simples de producto, pasando por alto que en muchos casos se emitían varias anulaciones para una misma orden y que, poco tiempo después, se asentaba la factura verdadera o corregida.
-
-### 2.2. Mejoras y Hallazgos Cuantitativos Incorporados en A-3-3
-
-#### A. Auditoría de Trazabilidad y Variables de Marketing (Tracking Blind Spot)
-- **Diagnóstico del Esquema:** El dataset cuenta estrictamente con 8 columnas (`Invoice`, `StockCode`, `Description`, `Quantity`, `InvoiceDate`, `Price`, `Customer ID`, `Country`). Existen **cero (0) variables** para parámetros UTM, canal de captación (orgánico, pago, email, afiliados), cupones de descuento a nivel de cesta o analítica web (clickstream).
-- **Impacto Empresarial:** North Quay Gifts opera bajo una *ceguera de atribución comercial*. No es factible calcular directamente el Costo de Adquisición de Clientes (CAC) ni evaluar si ciertas campañas agresivas atraen clientes con alta propensión a la devolución.
-- **Señales Indirectas Detectadas:** `177` líneas con `StockCode == 'D'` (descuentos manuales acumulando `-£13,484.54` en `55` clientes), `1,446` líneas de `DOTCOM POSTAGE` (operaciones de e-commerce web propio) y `39` líneas de comisiones de plataforma (`AMAZON FEE`).
-- **Evidencia Visual:** Generación de la **Figura 8** (`figures/fig8_marketing_tracking_audit.png`).
-
-#### B. Anatomía de Cancelaciones y Re-facturación ("Al tiempo después salía la verdadera")
-- **Población Total Analizada en Bruto:** `1,067,371` filas; `19,494` líneas con prefijo `'C'`; `22,950` líneas con cantidad negativa.
-- **Arquetipos de Transacción Negativa Identificados:**
-  1. *Devoluciones Puras Post-Compra (`58.04%`, `9,769` líneas apareadas):* Compra positiva habitual seguida días o semanas después por su devolución física o nota de crédito.
-  2. *Re-facturación y Sustitución Temporal ("Salía la verdadera después", `41.96%`, `7,062` líneas apareadas):* Transacciones donde la anulación con `'C'` precede temporalmente o coexiste con una factura positiva posterior que consolida la orden verdadera (`1,397` líneas en `< 24` horas).
-  3. *Cancelaciones Huérfanas / Censuradas a la Izquierda (`1,484` líneas brutas, `7.92%`):* Devoluciones de clientes sin compra previa registrada en el horizonte 2009–2011.
-  4. *Mermas de Bodega sin Prefijo C (`3,457` líneas brutas):* `100%` con `Price = £0.00` y `Customer ID = NaN`.
-  5. *Asientos Contables de Deuda Incobrable:* `5` líneas con precio negativo (hasta `-£53,594.36` en `A506401`).
-- **Evidencia Visual:** Generación de la **Figura 7** (`figures/fig7_cancellations_anatomy.png`).
+| Fase CRISP-DM | Carpeta | Estado | Cuaderno Principal | Registro Detallado |
+|---|---|---|---|---|
+| **1. Business Understanding** | `A-3-2_BusinessUnderstanding` | Base Conceptual | *(Documentos de diseño y alcance)* | Integrado en marco general |
+| **2. Data Understanding** | `A-3-3_DataUnderstanding` | **COMPLETADO (Auditado y Rehecho)** | `NB1` y `NB2` (`.ipynb` ejecutados) | [`A-3-3_DataUnderstanding/CAMBIOS_Y_MEJORAS.md`](file:///c:/Users/russe/Documents/github_repo/North_Quay_Gifts_UPY/A-3-3_DataUnderstanding/CAMBIOS_Y_MEJORAS.md) |
+| **3. Data Cleaning & Processing** | `A-3-4_DataCleaning` | **COMPLETADO (Auditado y Rehecho)** | `NB3 Data Preparation and Processing` (`.ipynb` ejecutado) | [`A-3-4_DataCleaning/CAMBIOS_Y_MEJORAS.md`](file:///c:/Users/russe/Documents/github_repo/North_Quay_Gifts_UPY/A-3-4_DataCleaning/CAMBIOS_Y_MEJORAS.md) |
+| **4. Data Construction (Feature Eng.)** | `A-3-5_DataConstruction` | **COMPLETADO (Auditado y Rehecho)** | `NB4 Analytical Dataset Construction` (`.ipynb` ejecutado) | [`A-3-5_DataConstruction/CAMBIOS_Y_MEJORAS.md`](file:///c:/Users/russe/Documents/github_repo/North_Quay_Gifts_UPY/A-3-5_DataConstruction/CAMBIOS_Y_MEJORAS.md) |
+| **5. Modeling & Commercial Strategy** | `A-3-6_ModelingStrategy` | **PENDIENTE (Siguiente en Cola)** | `NB5 Modeling and Commercial Strategy` | *Por auditar tras cierre de A-3-5* |
 
 ---
 
-## 3. Detalle de Intervención: Fase A-3-4 (Data Cleaning & Processing)
+## 2. Síntesis de Mejoras Consolidadas en `A-3-3_DataUnderstanding` (Completado)
 
-### 3.1. Trazabilidad y Contraste de Estrategias (Ruta A vs. Ruta B)
-- **Control de Base Común:** De las `1,067,371` filas originales (con clave inmutable `SourceRow`), se excluyeron `34,335` copias duplicadas exactas adicionales (`32,907` grupos duplicados), consolidando una **base común trazable de `1,033,036` líneas**.
-- **Ruta A (Exclusión pura):** Retiene únicamente las `1,007,913` compras positivas válidas (`25,123` excluidas), sumando `40,077` órdenes diarias, `11,205,148` unidades y `£20,476,260.45` en `604` días activos.
-- **Ruta B (Reconocimiento de abonos `'C'` — Seleccionada):** Conserva las mismas `1,007,913` compras más `19,103` abonos `'C'` documentados (`1,027,016` líneas totales; `6,020` excluidas), resultando en `10,728,328` unidades netas ($\Delta = -476,820$, `-4.26%`) y **`£19,013,836.27`** de ingreso neto ($\Delta = -\pounds 1,462,424.18$, `-7.14%`).
-
-### 3.2. Conciliación Temporal Bidireccional (Resolución del Sesgo de las `2,060` Líneas)
-- En el algoritmo unidireccional previo (Etapa 1: solo `compra < abono`), `9,827` líneas (`51.44%`) se conciliaban hacia atrás, `5,393` (`28.23%`) resultaban ambiguas y `3,883` (`20.33%`) quedaban no conciliadas, incluyendo **`2,060` líneas bajo el motivo *"No earlier purchase of the product by the customer"***.
-- Al implementar la **Etapa 2 (Conciliación Bidireccional Hacia Adelante)** sobre los `18,390` abonos `'C'` con cliente en la base deduplicada (`16,916` apareados con compras):
-  - Se demostró que **`586` de las `2,060` líneas (`28.45%`)** sí tenían compra del cliente en el archivo, pero registrada **después** del abono (`168` correcciones en caliente en `< 24h`, `87` en `1–7d` y `331` en `> 7d`).
-  - Las restantes **`1,474` líneas deduplicadas** (`1,484` en bruto antes de purgar `10` duplicados exactos) son devoluciones huérfanas legítimas por censura a la izquierda (ventas previas a diciembre de 2009 o compras de mostrador).
-  - En el total de `16,916` abonos apareados de la Ruta B, **`9,765` líneas (`57.73%`)** son devoluciones puras post-compra y **`7,151` líneas (`42.27%`)** tienen compra positiva posterior, destacando **`1,499` correcciones en caliente en `< 24` horas** (`1,181` en $\le 60$ minutos, como `C489570 → 489571` en `1` min y `C545329 → 545332` en `5` min), marcadas con `NettedHotFixFlag = True` en `outputs/auditoria_conciliacion_abonos.csv`.
-- **Evidencia Visual:** Generación de la **Figura 4** (`A-3-4_DataCleaning/figures/fig4_bidirectional_reconciliation.png`).
-
-### 3.3. Aislamiento Contable, Bifurcación del Pipeline y Proxies de Marketing
-- **Aislamiento de Mermas y Deuda Incobrable:** Se segregaron las `3,457` líneas brutas (`3,393` deduplicadas, `-569,314` unidades, `100% Price = £0.00` y sin cliente) de merma de almacén y las `5` partidas de deuda incobrable serie `'A'` con precio negativo (`-£158,676.14`), además de etiquetar con `IsMerchandise = 0` el asiento positivo `A563185` (`+£11,062.06`) y los códigos administrativos (`POST`, `DOT`, `M`, `AMAZONFEE`, `BANK CHARGES`, `D`, `C2`, `ADJUST`).
-- **Bifurcación Operativa de la Ruta B (`1,027,016` líneas):**
-  1. *Repositorio CRM Clientes Identificados:* `797,815` líneas (`77.68%`; `779,425` compras + `18,390` abonos en `5,942` clientes; `£16,289,991.29`).
-  2. *Repositorio Demanda Anónima (Dotcom/Mostrador):* `229,201` líneas (`22.32%`; `£2,723,844.98`), demostrando que **`206,506` líneas (`90.10%`)** provienen de facturas con `StockCode == 'DOT'` (*DOTCOM POSTAGE*, ventas web sin login).
-- **Proxies de Atribución de Marketing Construidos:** `CohortMonth` (`25` cohortes mensuales de adquisición), `IsUK` (`942,328` líneas UK [`91.75%`] vs. `84,688` exportación [`8.25%`]), `DOTCOM_OrderFlag` (`211,603` líneas), `AMAZON_OrderFlag` (`36` líneas) y `DISCOUNT_UserFlag` (`55` clientes mayoristas con `56,637` líneas).
-- **Evidencia Visual:** Generación de la **Figura 5** (`A-3-4_DataCleaning/figures/fig5_pipeline_bifurcation_and_proxies.png`).
-
-### 3.4. Auditoría Forense de Validación Profunda (6 Hallazgos Estructurales Adicionales)
-1. **Origen Dual de los `34,335` Duplicados Exactos:** El **`65.60%` (`22,523` líneas en `1,088` facturas)** proviene del solapamiento de corte entre las dos hojas del Excel original (`Year 2009-2010` hasta fila `525,461` y `Year 2010-2011` del `01` al `09` de diciembre de 2010; `100%` purgado con `0` sobrevivientes), mientras que el **`34.40%` (`11,812` líneas)** son repeticiones intra-factura. Además, se identificaron **`11,109` pares `(Invoice, StockCode)`** (`61` grupos / `124` líneas en abonos `'C'`) con el mismo SKU escaneado en varios renglones de la misma factura con distinta cantidad.
-2. **Colisiones de Reloj en el Mismo Minuto (`82` líneas `'C'` con `Gap = 0.0 min`):** Debido al truncamiento de segundos (`:00`), `82` abonos coinciden en el mismo minuto exacto con su compra (`28` con `SourceRow_P < SourceRow_C` desempatados por `SourceRow`, y `52` con `SourceRow_C < SourceRow_P` capturados por `ForwardGapHours >= 0`).
-3. **Resolución Determinista de los `5,393` Abonos "Ambiguos" (`£132,723.50`):** `1,794` líneas (`33.27%`) coinciden con el tamaño exacto de lote (`Units == ReturnedUnits`, `533` con candidato único) y el **`100%` (`5,393` líneas)** es resoluble mediante regla contable **LIFO** (factura previa más reciente con saldo disponible), elevando la trazabilidad hacia atrás del `51.44%` al **`79.67%` (`15,220` líneas)**.
-4. **Fragmentación de `StockCode` por Capitalización (`172` SKUs desdoblados):** `4,932` códigos en crudo colapsan a `4,760` al normalizar mayúsculas (`'85123a'` vs. `'85123A'`, `'m'` vs. `'M'`). Causó `0` fallos en conciliación de clientes identificados, pero requiere normalización en `A-3-5`.
-5. **Supervivencia del Asiento Positivo `A563185` (`+£11,062.06`) y `5,761` Líneas No Mercantiles:** Dentro de la Ruta B permanecen `4,573` compras (`+£832,284.45`) y `1,188` abonos (`-£745,928.65`) de códigos operativos (`POST`, `DOT`, `M`, `AMAZONFEE`, `BANK CHARGES`, `CRUK`, `TEST001`, `PADS`) y la factura `A563185` (`Adjust bad debt`, `+£11,062.06`), aislados mediante la bandera `IsMerchandise == 1` (`1,021,255` líneas de mercancía pura).
-6. **Clientes Multi-País (`13` cuentas B2B) y Países Indeterminados (`813` líneas):** `13` clientes cambian de país entre facturas (incluyendo el Cliente `12745` entre `EIRE` y `United Kingdom`) y `813` líneas registran `Unspecified` / `European Community`.
+1. **Corrección del filtro de Cancelaciones (`Invoice` con `'C'`):**
+   - El código original usaba `startswith('C')` sensible a mayúsculas. Aunque en el archivo actual las `'C'` están en mayúsculas (`19,494` filas = `1.83%`), se blindó con `.str.strip().str.upper().startswith('C')` y se separó de las **facturas de ajuste contable por deuda incobrable con prefijo `'A'`** (`A506401`, `A516228`, `A528059`, `A563185`, `A563186`, `A563187`).
+2. **Clasificación exacta de Anomalías de `Quantity <= 0` y `Price <= 0`:**
+   - Se desglosaron las `22,950` filas con `Quantity <= 0` en **`19,493` cancelaciones `'C'`** y **`3,457` mermas/ajustes internos de inventario** (100% con `Price == 0.0` y sin `Customer ID`, ej. `"damaged"`, `"thrown away"`, `"missing"`).
+   - Se corrigió el conteo de `Price <= 0` (`6,207` filas = `6,202` precios cero + `5` precios negativos de deuda incobrable `'B'`).
+3. **Auditoría profunda de los `21` Códigos No Mercantiles (`5,950` filas = `£118,524.08` netos):**
+   - Desglose completo de `DOT` (`£322,647.47`), `POST` (`£112,248.62`), `M` (`-£282,535.84`), `AMAZONFEE` (`-£235,038.36`), `B` (`-£147,614.08`), `D` (`-£13,066.64`), `CRUK` (`-£7,933.43`), `BANK CHARGES`, `PADS`, `TEST001`, `TEST002`, etc.
+4. **Ceguera de Atribución de Marketing (0 UTMs / 0 Campañas) y Sesgo de Supervivencia de `Customer ID` (`22.84%` nulos):**
+   - Se demostró que el `98.8%` de la facturación sin `Customer ID` (`£2.995M` brutos) son compras legítimas de invitados/mostrador y pasarela `DOTCOM POSTAGE` (`1,422` de `1,438` líneas de `DOT` carecen de `Customer ID`), con un ticket mediano por factura **1.54x superior** al de clientes registrados (`£472.22` vs `£307.50`).
 
 ---
 
-## 4. Hoja de Ruta hacia la Fase A-3-5 (Data Construction / Feature Engineering)
+## 3. Síntesis de Mejoras Consolidadas en `A-3-4_DataCleaning` (Completado)
 
-Con los archivos auditados y exportados en `A-3-4_DataCleaning/outputs/`, la **Fase A-3-5** procederá con:
-1. **Ingesta de `transacciones_procesadas.csv` y `auditoria_conciliacion_abonos.csv`:** Cruzar la bandera `NettedHotFixFlag` para consolidar órdenes re-facturadas en `< 24` horas antes de calcular `Frequency`, `Monetary` neto e intervalos entre compras (`InterPurchaseTime`).
-2. **Separación de Mercancía Pura (`IsMerchandise == 1`) y Normalización de `StockCode`:** Filtrar las `5,761` líneas no mercantiles (incluyendo `A563185`), normalizar `StockCode.str.strip().str.upper()` (`4,760` SKUs canónicos) y colapsar los `11,109` pares `(Invoice, StockCode)` partidos dentro de una misma factura.
-3. **Integración de Variables Proxy de Marketing y País Canónico por Cliente:** Incorporar `CohortMonth`, `IsUK`, `DOTCOM_OrderFlag` y `DISCOUNT_UserFlag`, asignando el país modal por `CustomerID` para no duplicar a los `13` clientes multi-país en la tabla analítica de `A-3-5`.
+1. **Conciliación Bidireccional de Abonos `'C'` ("Salía la verdadera después"):**
+   - El pipeline inicial de `NB3` solo buscaba facturas de compra **anteriores** (`InvoiceDate_compra < InvoiceDate_abono`), dejando `4,096` líneas (`50.71%` del valor abonado, `-£741,525.78`) como *"No conciliables"* y desconociendo qué ocurría **después** del abono.
+   - Se implementó un **motor de conciliación bidireccional (Backward + Forward)** sobre las `19,103` líneas de abono deduplicadas (`16,916` apareadas con cliente + `1,474` huérfanas + `713` anónimas):
+     - **`7,151` líneas (`42.27%` de los `16,916` abonos apareados con cliente)** tienen una **compra positiva posterior** del mismo `(CustomerID, StockCode)`.
+     - **`1,499` líneas (`8.86%`, `-£172,308.44`)** son **re-facturaciones en caliente en `< 24` horas** (`1,181` en `<= 60` minutos, ej. `C489449 -> 489450` en 3 min, `C489570 -> 489571` en 1 min, `C545329 -> 545332` en 5 min). Se etiquetaron con `NettedHotFixFlag = True`.
+     - **`640` líneas (`3.78%`, `-£57,366.66`)** son re-facturaciones de corto plazo (`1 a 7` días).
+     - **`5,012` líneas (`29.63%`, `-£215,969.62`)** son recompras en ciclos posteriores (`> 7` días).
+     - **`1,474` líneas (`-£363,911.09`)** son abonos huérfanos por **censura por la izquierda (compras previas al `2009-12-01`)** o devoluciones de mostrador, explicando las `64` cuentas en la Base Común (`61` en Ruta B) que solo registran abonos `'C'`.
+2. **Bifurcación Arquitectónica y Variables Proxy de Atribución de Marketing (0 UTMs):**
+   - Se estructuró la separación entre el **Repositorio CRM Identificado** (`797,815` líneas, `£16,289,991.29` netos) y el **Repositorio de Demanda Anónima/Dotcom** (`229,201` líneas, `£2,723,844.98` netos).
+   - Se construyeron las variables proxy: `CohortMonth` (`27` cohortes mensuales), `IsUK` (`942,328` UK vs `84,688` exportación), `DOTCOM_OrderFlag` (`211,603` líneas en pedidos con `StockCode == 'DOT'`), `AMAZON_OrderFlag` (`36` líneas), `DISCOUNT_UserFlag` (`55` clientes mayoristas con `StockCode == 'D'`, `56,637` líneas) y `ChannelProxy`.
+3. **Descubrimiento y Gobernanza de 6 Hallazgos Forenses Adicionales:**
+   - **Origen dual de los `34,335` duplicados exactos:** `65.60%` (`22,523` líneas en `1,088` facturas del `2010-12-01` al `2010-12-09`) provienen del **solapamiento entre las dos hojas del archivo original** (*Year 2009-2010* y *Year 2010-2011*), quedando **100% neutralizados (`0` sobrevivientes)**; además, se identificaron **`11,109` pares `(Invoice, StockCode)` partidos** en varias líneas con distinta cantidad dentro de una misma factura.
+   - **Colisiones en el mismo minuto (`Gap = 0.0 min`):** `82` líneas de abono (`28` `Compra < Abono`, `52` `Abono < Compra` y `2` anónimas) ocurren en el mismo minuto que su compra debido al truncamiento de segundos (`:00`) del ERP.
+   - **Desambiguación determinista de los `5,393` abonos `"Ambiguous"` (`-£132,723.50`):** `1,794` líneas empatan por tamaño exacto de lote (`Units == ReturnedUnits`) y el **100% (`5,393`) se resuelve por regla LIFO**, elevando la trazabilidad hacia atrás del `51.44%` al **`79.67%` (`15,220` líneas)**.
+   - **Fragmentación de `StockCode` por mayúsculas/minúsculas:** `172` SKUs desdoblados (`4,932` crudos $\rightarrow$ `4,760` SKUs canónicos).
+   - **Partidas no mercantiles y deuda positiva (`A563185`) en Ruta B:** `5,761` líneas (`+£86,355.80` netos), incluyendo la factura `A563185` (`Adjust bad debt`, `+£11,062.06`), aisladas mediante `IsMerchandise == 1` (`1,021,255` líneas de mercancía pura).
+   - **Clientes Multi-País (`13` clientes B2B) y Geografías Indeterminadas (`813` líneas):** `13` clientes facturan en 2 países distintos (incluyendo `12745` entre `United Kingdom` y `EIRE`), exigiendo país canónico modal por `CustomerID`.
+
+---
+
+## 4. Síntesis de Mejoras Consolidadas en `A-3-5_DataConstruction` (Completado)
+
+1. **Corrección del Sesgo por Re-facturación en Caliente (`NettedHotFixFlag == True`) en RFM y Clasificación:**
+   - Se integró `auditoria_conciliacion_abonos.csv` (`19,103 × 25`) directamente en `NB4`.
+   - En el universo RFM (`5,878` clientes), las `1,499` líneas de re-facturación en caliente (`< 24h`, `-£172,308.44` en `393` clientes) habían inflado artificialmente la frecuencia de pedidos y el ratio de devolución. Al construir **`Frequency_NetHotFix`**, se descontaron **`601` facturas positivas de reemplazo duplicadas** en `309` clientes con factura previa vinculada (`36,975` órdenes brutas $\rightarrow$ **`36,374` órdenes netas**; o `738` órdenes en `384` clientes considerando las `137` facturas adicionales donde el abono se digitó minutos antes que la primera compra).
+   - Al construir **`TrueReturnRate`** (descontando los `-£172,308.44` de abonos técnicos en caliente, equivalentes al `16.83%` del valor abonado en RFM), la tasa de devolución agregada sobre compras brutas baja del `5.89%` (`-£1,023,763.31`) al **`4.90%` (`-£851,454.87`)**, y **`63` compradores leales pasan de tener una tasa de devolución falsa a exactamente `0.00%`**.
+   - En la ventana histórica de 180 días de Clasificación (`[2011-01-02, 2011-07-01)`, `2,724` clientes), se identificaron `279` líneas de *Hot-Fix* (`-£41,643.11` en `97` clientes) y se construyó **`TotalOrders_NetHotFix`** (descontando `115` órdenes duplicadas en `83` clientes).
+2. **Deconstrucción Forense de `Monetary <= 0` (`41` clientes en RFM) y `TotalSpent <= 0` (`9` clientes en Clasificación):**
+   - Al separar `Monetary_Merchandise` (`IsMerchandise == 1`, aislando las `3,652` líneas no mercantiles en clientes identificados por `-£68,623.25` netos), se demostró que **`18` de los `20` clientes con `Monetary < 0` (`90.0%`)** en RFM estaban distorsionados por ajustes administrativos (`StockCode = 'M'`, `'D'`, `'ADJUST'`, `'BANK CHARGES'`) y ciclos de *Hot-Fix* (ej. Cliente `12918` con `-£10,953.50` por secuencia `C502262 -> 502263 -> C502264` en 4 min, pero `Monetary_Merchandise = £0.00`; Cliente `14063` con `Monetary = -£3,767.20`, pero `Monetary_Merchandise = +£9,471.50`). **Solo `2` clientes de `5,878` (`0.034%`, `13091` y `13112`)** tienen `Monetary_Merchandise < 0`, ambos por abonos huérfanos pre-Dic 2009.
+   - En la verificación manual del cliente de alta frecuencia **`H = 17017`** (`Monetary = £6,553.79`), se probó que su abono más grande (`C504637` por `-£5,843.70`) es un cargo manual `StockCode = 'M'`, elevando su gasto mercantil real a **`Monetary_Merchandise = £12,397.49`** (tasa de devolución mercantil de `1.43%` en vez de `47.89%`).
+3. **Trazabilidad LIFO + Lote Exacto entre Ventanas Temporales (`180d` y `90d`):**
+   - Aplicando la resolución determinista **Stage 1 (`9,827`) + Lote Exacto (`1,794`) + LIFO (`3,599`)** sobre los `18,390` abonos con cliente (`15,220` resueltos = `82.76%`), se demostró que de los `3,543` abonos dentro de la ventana histórica `[2011-01-02, 2011-07-01)`, **`654` líneas (`18.46%`, `-£11,284.80`)** son devoluciones de compras realizadas **antes del `2011-01-02`** (en 2009–2010). Al excluir estos abonos de arrastre en **`TotalSpent_InWindowNet`**, **los `4` clientes que tenían `TotalSpent < 0` pasan a saldo positivo (`0` clientes quedan con `< £0.00`)**.
+   - En la ventana de observación de 90 días (`[2011-07-01, 2011-09-29)`, `2,024` abonos), **`570` líneas (`28.16%`, `-£12,466.45`)** cancelan compras anteriores al corte `2011-07-01`. Para los **`28` clientes de Clase `0`** que solo tuvieron abonos en los 90 días (`88` líneas), LIFO demuestra que **`77` líneas (`87.50%`)** provienen de compras pre-corte (`76` de la ventana de `180d` y `1` pre-2011).
+4. **Integración de Variables Proxy de Marketing, Normalización de Catálogo y Exportación Enriquecida:**
+   - Se unificaron los `13` clientes multi-país bajo su `Country` modal canónico, se normalizaron los `4,760` SKUs (`StockCode_Norm`) y se colapsaron **`10,560` líneas de compra partidas intra-factura** en `1,529` clientes RFM (`PurchaseLines_Collapsed = 768,865`, `UniqueSKUs`).
+   - Se cuantificó el alto poder discriminante de los proxies de marketing para la fase de modelado: la tasa de recompra a 90 días sube del **`36.48%`** en la Cohorte 2011 al **`52.65%`** en la Cohorte 2010 y al **`67.45%`** en la Cohorte 2009, mientras que los clientes mayoristas con descuento (`DISCOUNT_UserFlag == 1`) alcanzan un **`88.10%` de tasa de recompra** (`£15,036.14` de `Monetary` mediano en RFM vs. `£826.96` en cuentas estándar, y `48.96` órdenes netas medias vs. `5.78`).
+   - Se exportaron `outputs/clientes_rfm.csv` (`5,878 × 17`), `outputs/clientes_clasificacion.csv` (`2,724 × 18`), `outputs/resultados_actividad3.json` y 3 figuras de alta resolución en `A-3-5_DataConstruction/figures/`.
+
+---
+
+## 5. Hoja de Ruta Inmediata: Siguiente Fase a Auditar
+
+### Próximo Objetivo: `A-3-6_ModelingStrategy`
+1. **Conectar los datasets enriquecidos de `A-3-5` (`clientes_rfm.csv` con `17` columnas y `clientes_clasificacion.csv` con `18` columnas) en `NB5 Modeling and Commercial Strategy - Online Retail II.ipynb`:**
+   - Evaluar la estabilidad de los **clústeres RFM (K-Means / segmentación comercial)** contrastando las variables clásicas (`Recency`, `Frequency`, `Monetary`) frente a las variables depuradas de sesgos operativos (`Frequency_NetHotFix`, `Monetary_Merchandise`, `TrueReturnRate`), evitando que los `393` clientes con re-facturaciones en caliente o los `38` clientes con `Monetary <= 0` por ajustes manuales `'M'` sean mal clasificados.
+   - Evaluar el desempeño de los **modelos supervisados de recompra a 90 días (`Repurchase90Days`)** comparando el conjunto base de features (`RecencyDays`, `TotalOrders`, `TotalSpent`) frente al conjunto enriquecido con depuración forense y proxies de atribución de marketing pre-corte (`TotalOrders_NetHotFix`, `TotalSpent_Merchandise`, `TotalSpent_InWindowNet`, `TrueReturnRate`, `UniqueSKUs`, `TenureDays`, `IsUK`, `DISCOUNT_UserFlag`), manteniendo **cero fuga de información** (`< 2011-07-01`).
+   - Traducir los segmentos y probabilidades de recompra en una **estrategia comercial accionable** diferenciada para: (a) Mayoristas B2B recurrentes (`DISCOUNT_UserFlag == 1`, cohorte 2009–2010), (b) Compradores estacionales Q4 (`462` clientes de Clase `0` que recompran en Oct–Dic 2011), (c) Mercado doméstico UK vs. Exportación, y (d) Canal Dotcom (`DOTCOM_OrderFlag`).
