@@ -13,7 +13,7 @@ Este documento centraliza el estado de revisión, corrección de errores metodol
 | **2. Data Understanding** | `A-3-3_DataUnderstanding` | **COMPLETADO (Auditado y Rehecho)** | `NB1` y `NB2` (`.ipynb` ejecutados) | [`A-3-3_DataUnderstanding/CAMBIOS_Y_MEJORAS.md`](file:///c:/Users/russe/Documents/github_repo/North_Quay_Gifts_UPY/A-3-3_DataUnderstanding/CAMBIOS_Y_MEJORAS.md) |
 | **3. Data Cleaning & Processing** | `A-3-4_DataCleaning` | **COMPLETADO (Auditado y Rehecho)** | `NB3 Data Preparation and Processing` (`.ipynb` ejecutado) | [`A-3-4_DataCleaning/CAMBIOS_Y_MEJORAS.md`](file:///c:/Users/russe/Documents/github_repo/North_Quay_Gifts_UPY/A-3-4_DataCleaning/CAMBIOS_Y_MEJORAS.md) |
 | **4. Data Construction (Feature Eng.)** | `A-3-5_DataConstruction` | **COMPLETADO (Auditado y Rehecho)** | `NB4 Analytical Dataset Construction` (`.ipynb` ejecutado) | [`A-3-5_DataConstruction/CAMBIOS_Y_MEJORAS.md`](file:///c:/Users/russe/Documents/github_repo/North_Quay_Gifts_UPY/A-3-5_DataConstruction/CAMBIOS_Y_MEJORAS.md) |
-| **5. Modeling & Commercial Strategy** | `A-3-6_ModelingStrategy` | **PENDIENTE (Siguiente en Cola)** | `NB5 Modeling and Commercial Strategy` | *Por auditar tras cierre de A-3-5* |
+| **5. Modeling & Commercial Strategy** | `A-3-6_ModelingStrategy` | **COMPLETADO (Auditado y Rehecho)** | `NB5 Modeling and Commercial Strategy` (`.ipynb` ejecutado) | [`A-3-6_ModelingStrategy/CAMBIOS_Y_MEJORAS.md`](file:///c:/Users/russe/Documents/github_repo/North_Quay_Gifts_UPY/A-3-6_ModelingStrategy/CAMBIOS_Y_MEJORAS.md) |
 
 ---
 
@@ -74,10 +74,40 @@ Este documento centraliza el estado de revisión, corrección de errores metodol
 
 ---
 
-## 5. Hoja de Ruta Inmediata: Siguiente Fase a Auditar
+## 5. Síntesis de Mejoras Consolidadas en `A-3-6_ModelingStrategy` (Completado)
 
-### Próximo Objetivo: `A-3-6_ModelingStrategy`
-1. **Conectar los datasets enriquecidos de `A-3-5` (`clientes_rfm.csv` con `17` columnas y `clientes_clasificacion.csv` con `18` columnas) en `NB5 Modeling and Commercial Strategy - Online Retail II.ipynb`:**
-   - Evaluar la estabilidad de los **clústeres RFM (K-Means / segmentación comercial)** contrastando las variables clásicas (`Recency`, `Frequency`, `Monetary`) frente a las variables depuradas de sesgos operativos (`Frequency_NetHotFix`, `Monetary_Merchandise`, `TrueReturnRate`), evitando que los `393` clientes con re-facturaciones en caliente o los `38` clientes con `Monetary <= 0` por ajustes manuales `'M'` sean mal clasificados.
-   - Evaluar el desempeño de los **modelos supervisados de recompra a 90 días (`Repurchase90Days`)** comparando el conjunto base de features (`RecencyDays`, `TotalOrders`, `TotalSpent`) frente al conjunto enriquecido con depuración forense y proxies de atribución de marketing pre-corte (`TotalOrders_NetHotFix`, `TotalSpent_Merchandise`, `TotalSpent_InWindowNet`, `TrueReturnRate`, `UniqueSKUs`, `TenureDays`, `IsUK`, `DISCOUNT_UserFlag`), manteniendo **cero fuga de información** (`< 2011-07-01`).
-   - Traducir los segmentos y probabilidades de recompra en una **estrategia comercial accionable** diferenciada para: (a) Mayoristas B2B recurrentes (`DISCOUNT_UserFlag == 1`, cohorte 2009–2010), (b) Compradores estacionales Q4 (`462` clientes de Clase `0` que recompran en Oct–Dic 2011), (c) Mercado doméstico UK vs. Exportación, y (d) Canal Dotcom (`DOTCOM_OrderFlag`).
+1. **Benchmark Sistemático de Clasificación Supervisada (Base 3 vs. Enriquecido 9 Features):**
+   - Se compararon 4 familias de modelos (`DecisionTree`, `LogisticRegression` con `RobustScaler`, `RandomForest` y `GradientBoosting`) bajo partición estratificada 80/20 (`2,179` train / `545` test) y CV 5-fold en train.
+   - El conjunto enriquecido pre-corte (`< 2011-07-01` con cero leakage) superó al conjunto base en calibración probabilística y discriminación:
+     - **Regresión Logística Enriquecida:** `Test F1 = 0.7104` (vs. `0.6851` base), `Test ROC-AUC = 0.7815`, `Test PR-AUC = 0.8084`, reduciendo el error cuadrático medio Brier a **`0.1906`**.
+     - **Random Forest Enriquecido:** `Test PR-AUC = 0.8095` (vs. `0.7880` base), `Test ROC-AUC = 0.7765`, Brier a **`0.1905`**.
+   - Las variables más determinantes según Gini MDI fueron `TotalSpent_Merchandise` (`22.42%`), `TotalSpent_InWindowNet` (`22.11%`), `TotalOrders_NetHotFix` (`14.97%`), `RecencyDays` (`14.14%`) y `TenureDays` (`13.45%`).
+2. **Deconstrucción de Falsos Positivos: Los `462` Recompradores Estacionales Q4 de Clase `0`:**
+   - Se probó empíricamente que **`462` de los `1,315` clientes de Clase `0` (`35.13%`)** regresaron a comprar durante la campaña navideña `[2011-09-29, 2011-12-10]`.
+   - En el conjunto de test, el **`52.86%` de los Falsos Positivos predichos por el modelo (37 de 70)** son en realidad compradores leales de ciclo largo que el modelo detectó con una propensión superior ($\hat{p} = 0.415$ vs. $\hat{p} = 0.336$ en verdaderos desertores).
+3. **Auditoría de Sensibilidad Forense en Clustering RFM ($K=4$):**
+   - Sobre `5,825` cuentas en común, la estabilidad entre la segmentación clásica y la segmentación depurada (`Frequency_NetHotFix`, `Monetary_Merchandise`) es del **`98.42%`** (`96.83%` en cuentas afectadas por Hot-Fix).
+   - Se comprobó que **18 de las 20 cuentas con `Monetary < 0` (`90.0%`)** tenían saldo deudor por partidas no mercantiles `'M'`.
+   - Se rescató al cliente **`14063`** (`Monetary = -£3,767.20` $\rightarrow$ `Monetary_Merchandise = +£9,471.50`) reclasificándolo como *Cooling regulars*.
+   - Se revalorizó al cliente de alta frecuencia **`17017`** de `£6,553.79` a **`£12,397.49`** netos mercantiles (tasa de devolución real física de `1.43%` vs. `47.89%` bruto).
+4. **Caracterización Enriquecida con Proxies de Marketing y Matriz de Decisión Comercial:**
+   - Se descubrió que el segmento **Champions** concentra el **`81.5%` de mayoristas con descuento negociado (`DISCOUNT_UserFlag == 1`)** y el `63.4%` de los clientes expuestos a fricción operativa de Hot-Fix, con un `91.8%` de retención histórica (cohortes 2009–2010).
+   - Se diseñó la **Matriz Multidimensional de Acción Comercial** dividida en 4 programas con presupuestos y KPIs específicos:
+     1. *B2B Key Accounts & VIPs* (Account Manager y rappel `StockCode='D'`).
+     2. *Reactivación Estacional Q4* (catálogo anticipado en septiembre/octubre para los `462` clientes navideños).
+     3. *Onboarding Cohorte 2011* (cross-selling para elevar recompra del `36.5%` al `50%`).
+     4. *Exportación y Canal Dotcom* (bonificación de portes `POST` y autoservicio B2B).
+5. **Artefactos Exportados y Ejecución al 100%:**
+   - Se generaron 9 figuras en `A-3-6_ModelingStrategy/figures/` (incluyendo `fig7_supervised_models_roc_pr_cv.png`, `fig8_rfm_forensic_sensitivity_and_proxies.png` y `fig9_commercial_decision_matrix.png`).
+   - Se exportaron los datasets en `outputs/`: `comparacion_modelos.csv`, `predicciones_clasificacion.csv`, `clientes_rfm_segmentados.csv`, `customer_priority_list.csv`, `rfm_segments.csv`, `forecast_test_predictions.csv` y `resultados_actividad4.json`.
+   - El cuaderno `NB5 Modeling and Commercial Strategy - Online Retail II.ipynb` (`3.39 MB`) quedó **100% ejecutado** con sus 27 celdas de código completadas y con salidas enriquecidas.
+
+---
+
+## 6. Estado Final del Proyecto CRISP-DM
+
+Con la culminación de la fase **A-3-6**, el ciclo metodológico completo de North Quay Gifts (*Online Retail II*) queda cerrado con éxito:
+1. **Fase 2 (Data Understanding):** Auditoría forense del libro mayor atómico (`1,067,371` filas), segregación de mermas, cancelaciones y partidas no mercantiles.
+2. **Fase 3 (Data Cleaning & Preparation):** Conciliación temporal bidireccional de abonos, neteo de Hot-Fixes en caliente y desambiguación determinista LIFO.
+3. **Fase 4 (Data Construction):** Ingeniería de características analíticas limpias de sesgo operativo y construcción de variables proxy de marketing pre-corte.
+4. **Fase 5 & 6 (Modeling & Evaluation):** Modelos predictivos de regresión y clasificación supervisada con calibración probabilística, clustering robusto y plan comercial multidimensional accionable.
